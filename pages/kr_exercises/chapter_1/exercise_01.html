@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-1</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_01.c"
+          >Exercise 1-1</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Run the “<samp>hello, world</samp>” program on your system.
+          Experiment with leaving out parts of the program, to see what error
+          messages you get.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        Apart from briefly mentioning the <code>cc</code> command, the book
+        does not go into much detail about the logistics of writing C programs,
+        and perhaps that is for good reason. The second edition was published
+        over forty years ago, and the C programming scene has changed quite a
+        bit since then. Nowadays, by far the most widely used C compiler is
+        <code>gcc</code>, the GNU C Compiler. macOS and most GNU/Linux systems
+        come with <code>gcc</code> pre-installed. On Windows, the easiest way
+        to start writing code is to install an IDE like
+        <a href="https://www.jetbrains.com/clion/">CLion</a>, which comes with
+        everything you need to write C programs. The following steps assume you
+        are using <code>gcc</code>; if you end up going the CLion route, you
+        can check out its
+        <a
+          href="https://www.jetbrains.com/help/clion/clion-quick-start-guide.html"
+          >quick start guide</a
+        >.
+      </p>
+      <p>To get started, open a text editor and write the following code.</p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    {
+        printf("hello, world\n");
+    }</code></pre>
+
+      <p>
+        Save the file with a name ending in "<code>.c</code>." Technically, the
+        file extension "<code>.c</code>" is only a convention (at least on *nix
+        systems) but by default, <code>gcc</code> will refuse to compile files
+        that do not end in "<code>.c</code>." To compile the code, run the
+        command <kbd>gcc /path/to/file.c</kbd>. Within the file's directory,
+        there should be another file called <code>a.out</code>, which is the
+        resulting executable. You have written your first C program!
+      </p>
+      <p>
+        <b>Note:</b> in order to compile your code into a specific file, you
+        can use <code>gcc</code>'s <code>-o</code> option followed by the name
+        you want to use for your output file (e.g.
+        <kbd>gcc /path/to/file.c -o execname</kbd>.)
+      </p>
+      <p>
+        Let us see what happens when we make leave out parts of our code. If we
+        get rid of the <code>;</code>:
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    {
+        printf("hello, world\n")
+    }</code></pre>
+
+      <p>
+        <code>gcc</code> fails to compile the code and prints the following
+        error message:
+      </p>
+
+      <pre><samp>    &lt;file&gt;: In function 'main':
+    &lt;file&gt;:5:29: error: expected ';' before '}' token</samp></pre>
+
+      <p>
+        The compiler correctly detects that inside the function
+        <code>main</code>, we are missing a semicolon before the closing brace.
+        On the second line, after <code>&lt;file&gt;</code>, we see two
+        numbers. It looks like they refer to the line and column where the
+        error is.
+      </p>
+      <p>
+        Let us also delete the <code>{</code> to see how <code>gcc</code>
+        reacts to multiple errors.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    
+        printf("hello, world\n")
+    }</code></pre>
+
+      <p>Now, <code>gcc</code> prints the following error messages:</p>
+
+      <pre><samp>    &lt;file&gt;: In function 'main':
+    &lt;file&gt;:5:5: error: expected declaration specifiers before 'printf'
+    &lt;file&gt;:7: error: expected '{' at end of input</samp></pre>
+
+      <p>
+        The compiler no longer mentions the missing semicolon on line five.
+        This is to be expected since the function itself is no longer valid, so
+        the compiler does not know where its statements are located.
+      </p>
+      <p>
+        Let us try removing the <code>#include</code> statement at the top:
+      </p>
+
+      <pre><code>    int main()
+    {
+        printf("hello, world\n");
+    }</code></pre>
+
+      <p>
+        This time, our program successfully compiles and runs as expected, but
+        <code>gcc</code> warns us that we are missing the <code>#include</code>
+        statement. This behavior should not be relied upon as other C
+        implementations may not be able to compile this code.
+      </p>
+
+      <pre><samp>    &lt;file&gt;: In function 'main':
+    &lt;file&gt;:3:5: warning: implicit declaration of function 'printf'
+    &lt;file&gt;:1:1: note: include '&lt;stdio.h&gt;' or provide a declaration of 'printf'</samp></pre>
+
+      <p>
+        Try playing around with the file and see how the compiler reacts. Not
+        everything it says might make sense yet, but hopefully, it will start
+        to as we progress through the book.
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

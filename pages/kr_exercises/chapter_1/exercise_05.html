@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-5</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_04.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_05.c"
+          >Exercise 1-5</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Modify the temperature conversion program to print the table in
+          reverse order, that is, from 300 degrees to 0.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        In order to print the table in reverse order, instead of initializing
+        <var>fahr</var> to zero and incrementing it until it reaches 300, we
+        can assign 300 to <var>fahr</var> at the beginning and decrement it
+        until it reaches zero. This means that our condition now reads
+        <code>fahr &gt;= 0</code>.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    /* print Fahrenheit-Celsius table */
+    main()
+    {
+        int fahr;
+    
+        <del>for (fahr = 0; fahr &lt;= 300; fahr = fahr + 20)</del>
+        <ins>for (fahr = 300; fahr &gt;= 0; fahr = fahr - 20)</ins>
+            printf("%3d %6.1f\n", fahr, (5.0/9.0)*(fahr-32));
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_04.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

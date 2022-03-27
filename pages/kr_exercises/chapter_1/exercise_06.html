@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-6</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_05.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_06.c"
+          >Exercise 1-6</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Verify that the expression <code>getchar() != EOF</code> is 0 or 1.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        The values zero and one are integer values, so we use the
+        <code>%d</code> format specifier and pass
+        <code>getchar() != EOF</code> as an argument to <code>printf</code>.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    {
+        printf("%d\n", getchar() != EOF);
+    }</code></pre>
+
+      <p>
+        After running the program, you will find that when
+        <kbd>Ctrl</kbd>-<kbd>D</kbd> (or <kbd>Ctrl</kbd>-<kbd>Z</kbd> +
+        <kbd>Enter</kbd> on Windows) is entered, the value of the expression is
+        one; otherwise, it is zero. Perhaps this tells us something along the
+        lines of true statements being equal to the value one and false
+        statements being equal to zero. But let us not get too ahead of
+        ourselves!
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_05.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

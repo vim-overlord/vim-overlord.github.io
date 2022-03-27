@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-7</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_06.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_07.c"
+          >Exercise 1-7</a
+        >
+      </h1>
+      <blockquote>
+        <i>Write a program to print the value of <code>EOF</code>.</i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        It is mentioned in the book that <code>EOF</code> is an
+        <strong>integer</strong> defined in <code>&lt;stdio.h&gt;</code>, so we
+        use <code>%d</code> and pass in <code>EOF</code> as an argument for
+        <code>printf</code>.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    {
+        printf("%d\n", EOF);
+    }</code></pre>
+
+      <p>
+        On most systems, you will find that <code>EOF</code> is equal to -1,
+        but this is not always the case since the value of <code>EOF</code> is
+        not defined by the C standard.
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_06.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

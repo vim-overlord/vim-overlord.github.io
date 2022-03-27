@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-3</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_02.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_03.c"
+          >Exercise 1-3</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Modify the temperature conversion program to print a heading above
+          the table.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        We know that in order to print words to the screen, we use the
+        <code>printf</code> function, so let us add the line
+        <code>printf("Fahr Celsius\n")</code> to print
+        <code>"<samp>Fahr Celsius</samp>"</code> followed by a newline prior to
+        executing the <code>while</code>-loop.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    /* print Fahrenheit-Celsius table
+        for fahr = 0, 20, ..., 300; floating-point version */
+    main()
+    {
+        float fahr, celsius;
+        int lower, upper, step;
+    
+        lower = 0;      /* lower limit of temperature table */
+        upper = 300;    /* upper limit */
+        step = 20;      /* step size */
+    
+        <ins>printf("Fahr Celsius\n");</ins>
+        fahr = lower;
+        while (fahr &lt;= upper) {
+            celsius = (5.0/9.0) * (fahr-32.0);
+            printf("%3.0f %6.1f\n", fahr, celsius);
+            fahr = fahr + step;
+        }
+    }</code></pre>
+
+      <p>
+        After compiling the code and executing it, we get the following result:
+      </p>
+
+      <pre><samp>    Fahr Celsius
+      0  -17.8
+     20   -6.7
+     40    4.4
+    ...</samp></pre>
+
+      <p>
+        We forgot to update the widths of our fields! Let us update our code so
+        that the Fahrenheit and Celsius temperatures take up four and seven
+        characters respectively in order to align with the headings.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    /* print Fahrenheit-Celsius table
+        for fahr = 0, 20, ..., 300; floating-point version */
+    main()
+    {
+        float fahr, celsius;
+        int lower, upper, step;
+    
+        lower = 0;      /* lower limit of temperature table */
+        upper = 300;    /* upper limit */
+        step = 20;      /* step size */
+    
+        printf("Fahr Celsius\n");
+        fahr = lower;
+        while (fahr &lt;= upper) {
+            celsius = (5.0/9.0) * (fahr-32.0);
+            <del>printf("%3.0f %6.1f\n", fahr, celsius);</del>
+            <ins>printf("%4.0f %7.1f\n", fahr, celsius);</ins>
+            fahr = fahr + step;
+        }
+    }</code></pre>
+
+      <p>Now we get the intended output.</p>
+
+      <pre><samp>    Fahr Celsius
+       0   -17.8
+      20    -6.7
+      40     4.4
+    ...</samp></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_02.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

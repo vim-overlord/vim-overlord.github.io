@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-4</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_03.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_04.c"
+          >Exercise 1-4</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a program to print the corresponding Celsius to Fahrenheit
+          table.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        Using the <a href="./exercise_03.html">previous program</a> as a
+        reference, we can define the variables <var>lower</var>,
+        <var>upper</var>, and <var>step</var> to represent the lower bounds,
+        upper bounds, and the step size, as well as <var>celsius</var> and
+        <var>fahr</var> to store the temperatures.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    {
+        float fahr, celsius;
+        int lower, upper, step;
+    
+        lower = 0;      /* lower limit of temperature table */
+        upper = 300;    /* upper limit */
+        step = 20;      /* step size */
+    }</code></pre>
+
+      <p>
+        Because we want to print a table that converts Celsius temperatures
+        into Fahrenheit, we initialize <var>celsius</var> to
+        <var>lower</var> and set the condition of our <code>while</code>-loop
+        to <code>celsius &lt;= upper</code>, whilst incrementing
+        <var>celsius</var> by <var>step</var> at the end of each iteration.
+        This way, the value of <var>celsius</var> starts at
+        <var>lower</var> and increments by <var>step</var> repeatedly until it
+        reaches <var>upper</var>.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    {
+        float fahr, celsius;
+        int lower, upper, step;
+    
+        lower = 0;      /* lower limit of temperature table */
+        upper = 300;    /* upper limit */
+        step = 20;      /* step size */
+    
+        <ins>celsius = lower;</ins>
+        <ins>while (celsius &lt;= upper)</ins>
+            <ins>celsius = celsius + step;</ins>
+    }</code></pre>
+
+      <p>
+        The Fahrenheit-Celsius program subtracted 32 from <var>fahr</var> and
+        multiplied the result by 5/9 to get the corresponding Celsius
+        temperature, so in order to convert <var>celsius</var> to
+        <var>fahr</var>, we have to multiply <var>celsius</var> by 9/5 and then
+        add 32. This can be written as the expression
+        <code>(9.0/5.0) * celsius + 32.0</code>. Once we assign the converted
+        temperature to <var>fahr</var>, we can print the Celsius column on the
+        left and the Fahrenheit column on the right to better reflect the fact
+        that we are converting from Celsius to Fahrenheit.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    {
+        float fahr, celsius;
+        int lower, upper, step;
+    
+        lower = 0;      /* lower limit of temperature table */
+        upper = 300;    /* upper limit */
+        step = 20;      /* step size */
+    
+        <ins>printf("Celsius Fahr\n");</ins>
+        celsius = lower;
+        while (celsius &lt;= upper) {
+            <ins>fahr = (9.0/5.0) * celsius + 32.0;</ins>
+            <ins>printf("%7.0f %4.0f\n", celsius, fahr);</ins>
+            celsius = celsius + step;
+        }
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> we do not need to print the decimal places of
+        <var>fahr</var> since a multiple of twenty—our step size—times 9/5 will
+        always be an integer.
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_03.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

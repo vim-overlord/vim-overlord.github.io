@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-2</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_01.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_02.c"
+          >Exercise 1-2</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Experiment to find out what happens when <code>printf</code>'s
+          argument string contains <code>\</code><var>c</var>, where
+          <var>c</var> is some character not listed above.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      When we compile and execute the code
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    {
+        printf("\c");
+    }</code></pre>
+
+      the character <code>'<samp>c</samp>'</code> gets printed to the screen.
+      Likewise, the code
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    {
+        printf("\a");
+    }</code></pre>
+
+      <p>
+        prints the character <code>'<samp>a</samp>'</code> to the screen. Try
+        this with some more characters, and you will find that
+        <code>printf</code> ignores the backslash when the escape sequence is
+        invalid.
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_01.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

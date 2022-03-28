@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-8</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_07.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_08.c"
+          >Exercise 1-8</a
+        >
+      </h1>
+      <blockquote>
+        <i>Write a program to count blanks, tabs, and newlines.</i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        First, we need to be able to read in input. From the examples in the
+        book, you should know by now that we do this by running
+        <code>getchar</code> inside of a <code>while</code>-loop until we read
+        in an <code>EOF</code>. If we want to be able to use the value of
+        <code>getchar</code>, we need to assign it to a variable.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    {
+        int c;
+    
+        while ((c = getchar()) != EOF)
+            /* code */;
+    }</code></pre>
+
+      <p>
+        To keep track of how many blanks, tabs, and newlines we come across, we
+        can create variables for each one of them. For every character we read
+        in, we use a series of <code>if</code>-statements that check if the
+        character happens to be a blank, tab, or newline, in which case we
+        increment the corresponding variable. Once we stop reading input, we
+        can print the values of the three variables.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    {
+        int c<ins>, blanks, tabs, lines</ins>;
+    
+        blanks = 0;
+        tabs = 0;
+        lines = 0;
+        while ((c = getchar()) != EOF) {
+            <ins>if (c == ' ')</ins>
+                <ins>++blanks;</ins>
+            <ins>if (c == '\t')</ins>
+                <ins>++tabs;</ins>
+            <ins>if (c == '\n')</ins>
+                <ins>++lines;</ins>
+        }
+        <ins>printf("blanks: %d, tabs: %d, lines: %d\n", blanks, tabs, lines);</ins>
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> for now, there are two ways to pass input into your
+        programs. You can enter input through the terminal, but for this
+        program and many of the ones coming up, it may be more convenient to
+        <code><a href="https://man.openbsd.org/cat.1">cat</a></code> a file
+        with the input and pipe its output into your program
+        (<kbd>cat /path/to/file | /path/to/exec</kbd>.) The equivalent command
+        in Windows is <kbd>type C:\\path\to\file | C:\\path\to\exec.exe</kbd>.
+        Later, we will learn how to get our programs to read from files
+        directly.
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_07.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

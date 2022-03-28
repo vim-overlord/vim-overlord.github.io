@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-10</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_09.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_10.c"
+          >Exercise 1-10</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a program to copy its input to its output, replacing each tab
+          by <code>\t</code>, each backspace by <code>\b</code>, and each
+          backslash by <code>\\</code>. This makes tabs and backspaces visible
+          in an unambiguous way.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        We can use <code>if</code>-statements to detect and print escape
+        sequences for the characters in question.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    {
+        int c;
+    
+        while ((c = getchar()) != EOF) {
+            if (c == '\t')
+                printf("\\t");
+            if (c == '\b')
+                printf("\\b");
+            if (c == '\\')
+                printf("\\\\");
+        }
+    }</code></pre>
+
+      <p>
+        Now we have to account for all the other characters. We can do this
+        using a series of nested-<code>if</code>-statements that ensure that
+        our character is not one we want to replace, and then print it:
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    {
+        int c;
+    
+        while ((c = getchar()) != EOF) {
+            if (c == '\t')
+                printf("\\t");
+            if (c == '\b')
+                printf("\\b");
+            if (c == '\\')
+                printf("\\\\");
+            <ins>if (c != '\t')</ins>
+                <ins>if (c != '\b')</ins>
+                    <ins>if (c != '\\')</ins>
+                        <ins>putchar(c);</ins>
+        }
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> you can enter a backspace character in
+        <code>bash</code> or <code>zsh</code> by hitting the key combination
+        <kbd>Ctrl</kbd>-<kbd>V</kbd> + <kbd>Ctrl</kbd>-<kbd>H</kbd>.
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_09.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

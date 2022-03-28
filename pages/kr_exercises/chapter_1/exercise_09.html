@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-9</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_08.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_09.c"
+          >Exercise 1-9</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a program to copy its input to its output, replacing each
+          string of one or more blanks by a single blank.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        To copy the input to the output, we print every character using
+        <code>putchar</code> after reading it in with <code>getchar</code>.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    {
+        int c;
+    
+        while ((c = getchar()) != EOF)
+            putchar(c);
+    }</code></pre>
+
+      <p>
+        In order to detect a sequence of blanks, we need to keep track of
+        whether the previous character was a blank. We can do this by creating
+        the variable <var>prev</var>, which we set to the symbolic
+        constant <code>BLANK</code> after a blank is read in and printed, and
+        to the constant <code>NOTBLANK</code> after a non-blank character is
+        read in and printed. We make it so that we only print blanks when
+        <var>prev</var> is equal to <code>NOTBLANK</code>. <var>prev</var> will
+        be <code>NOTBLANK</code> when we come across the first blank, so it
+        gets printed, but any subsequent blanks will get skipped.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    <ins>#define BLANK 1     /* previous character was a blank */</ins>
+    <ins>#define NOTBLANK 0  /* previous character was not a blank */</ins>
+    
+    main()
+    {
+        int c;
+        <ins>int prev;   /* whether the previous character was a blank */</ins>
+    
+        <ins>prev = NOTBLANK;</ins>
+        while ((c = getchar()) != EOF) {
+            <ins>if (prev == NOTBLANK) {</ins>
+                <ins>if (c == ' ') {</ins>
+                    <ins>putchar(c);</ins>
+                    <ins>prev = BLANK;</ins>
+                <ins>}</ins>
+                <ins>if (c == '\t') {</ins>
+                    <ins>putchar(c);</ins>
+                    <ins>prev = BLANK;</ins>
+                <ins>}</ins>
+            <ins>}</ins>
+            <ins>if (c != ' ') {</ins>
+                <ins>if (c != '\t') {</ins>
+                    putchar(c);
+                    <ins>prev = NOTBLANK;</ins>
+                <ins>}</ins>
+            <ins>}</ins>
+        }
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_08.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

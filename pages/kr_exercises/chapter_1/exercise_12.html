@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-12</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_11.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_12.c"
+          >Exercise 1-12</a
+        >
+      </h1>
+      <blockquote>
+        <i>Write a program that prints its input one word per line.</i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        At first glance, the solution seems simple: copy all the non-blank
+        characters and print a newline in place of any whitespace characters we
+        come across.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    {
+        int c;
+    
+        while ((c = getchar()) != EOF) {
+            if (c == ' ' || c == '\n' || c == '\t')
+                putchar('\n');
+            else
+                putchar(c);
+        }
+    }</code></pre>
+
+      <p>
+        This works, for the most part. However, when the program comes across
+        input like <kbd>hello, &nbsp; world</kbd>, with a sequence of blanks,
+        it outputs the following:
+      </p>
+
+      <pre><samp>    hello,
+    
+    
+    world</samp></pre>
+
+      <p>
+        This makes sense since we are simply replacing the sequence of blanks
+        with a sequence of newlines, but we do not want this behavior.
+      </p>
+      <p>
+        In order to solve this issue, we can reuse the idea of creating a
+        <var>state</var> variable from the word count program for keeping track
+        of whether we are "in" a word or not. We assign the symbolic constant
+        <code>OUT</code> to <var>state</var> when we come across whitespace,
+        and the symbolic constant <code>IN</code> when we read in a
+        non-whitespace character. Now, instead of replacing every whitespace
+        character with a newline, we can only replace whitespace when
+        <var>state</var> is <code>IN</code>; any subsequent whitespace will get
+        skipped.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    <ins>#define IN 1    /* inside a word */</ins>
+    <ins>#define OUT 0   /* outside a word */</ins>
+    
+    main()
+    {
+        int c<ins>, state</ins>;
+    
+        <ins>state = OUT;</ins>
+        while ((c = getchar()) != EOF) {
+            if ((c == ' ' || c == '\n' || c == '\t')<ins> && state == IN</ins>) {
+                putchar('\n');
+                <ins>state = OUT;</ins>
+            } else {
+                putchar(c);
+                <ins>state = IN;</ins>
+            }
+        }
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> the condition
+        <code>(c == ' ' || c == '\n' || c == '\t')</code> is wrapped in
+        parantheses because <code>&&</code> has a higher precedence than
+        <code>||</code>.
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_11.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

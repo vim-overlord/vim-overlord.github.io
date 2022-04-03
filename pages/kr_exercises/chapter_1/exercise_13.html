@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-13</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_12.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_13_1.c"
+          >Exercise 1-13</a
+        >
+      </h1>
+      <a
+        href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_13_2.c"
+        >(source code for vertical histogram)</a
+      >
+      <blockquote>
+        <i>
+          Write a program to print a histogram of the lengths of words in its
+          input. It is easy to draw the histogram with the bars horizontal; a
+          vertical orientation is more challenging.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        Printing a histogram horizontally should not be too difficult. We can
+        use the same code from the
+        <a href="./exercise_12.html">previous exercise</a>, except this time,
+        we print dashes in place of the actual characters in the words.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define IN 1    /* inside a word */
+    #define OUT 0   /* outside a word */
+    
+    main()
+    {
+        int c, state;
+    
+        state = OUT;
+        while ((c = getchar()) != EOF) {
+            if ((c == ' ' || c == '\n' || c == '\t') && state == IN) {
+                putchar('\n');
+                state = OUT;
+            } else {
+                <del>putchar(c);</del>
+                <ins>putchar('-');</ins>
+                state = IN;
+            }
+        }
+    }</code></pre>
+
+      <p>
+        In order to print the histogram vertically, we first need to store the
+        lengths of the words, because we cannot print in columns. We do this by
+        creating the integer array <var>len</var> to store the word lengths and
+        the index <var>i</var> to keep track of which word length we are
+        counting. Whenever our <var>state</var> changes from
+        <code>OUT</code> to <code>IN</code>, we increment <var>i</var> since
+        that means we have come across the next word. Whilst
+        <var>state</var> is equal to <code>IN</code>, we increment
+        <code>len[i]</code>—the length of the current word—for every character
+        in the word.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define IN 1    /* inside a word */
+    #define OUT 0   /* outside a word */
+    #define MAX 100 /* maximum number of words */
+    
+    main()
+    {
+        int c, i, state;
+        int len[MAX];   /* lengths of words */
+    
+        for (i = 0; i &lt; MAX; ++i)
+            len[i] = 0;
+        i = -1;
+        state = OUT;
+        while ((c = getchar()) != EOF) {
+            if (c == ' ' || c == '\n' || c == '\t')
+                state = OUT;
+            else if (state == OUT) {
+                ++i;
+                state = IN;
+            }
+            if (state == IN)
+                ++len[i];
+        }
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> never forget to initialize integer arrays to zero;
+        otherwise, the array gets filled with garbage values. What makes this
+        particularly scary is that oftentimes, the garbage values are
+        reasonable such as zero, which can make it hard to spot bugs like
+        these.
+      </p>
+      <p>
+        <b>Note:</b> we initialize <var>state</var> to <code>OUT</code>
+        because otherwise, if the input started with whitespace,
+        <var>i</var> would get incremented on the first non-whitespace
+        character causing <code>len[0]</code> to equal zero, and the first
+        length being stored in <code>len[1]</code>. On the other hand, if
+        <var>state</var> starts as <code>OUT</code>, we know that
+        <var>i</var> will always increment on the first word regardless of
+        whether there is leading whitespace or not, which is why <var>i</var>
+        is initialized to -1.
+      </p>
+      <p>
+        Now that we have the lengths of the words, we need to start thinking
+        about how we can print the histogram. Assuming we want to print it from
+        bottom to top, we need a way to keep track of the longest word so that
+        we can know in advance how many lines to use for the histogram. We can
+        do this by declaring the integer <var>longest</var>. Every time we go
+        "out" of a word, we can check if our current length is greater than
+        <var>longest</var>: if it is, we update <var>longest</var> to equal our
+        current length.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define IN 1    /* inside a word */
+    #define OUT 0   /* outside a word */
+    #define MAX 100 /* maximum number of words */
+    
+    main()
+    {
+        int c, i, state;
+        <ins>int longest;    /* longest word length */</ins>
+        int len[MAX];   /* lengths of words */
+    
+        for (i = 0; i &lt; MAX; ++i)
+            len[i] = 0;
+        i = -1;
+        state = OUT;
+        <ins>longest = 0;</ins>
+        while ((c = getchar()) != EOF) {
+            if (c == ' ' || c == '\n' || c == '\t') {
+                state = OUT;
+                <ins>if (i &gt;= 0 && len[i] &gt; longest)</ins>
+                    <ins>longest = len[i];</ins>
+            } else if (state == OUT) {
+                ++i;
+                state = IN;
+            }
+            if (state == IN)
+                ++len[i];
+        }
+    }</code></pre>
+
+      <p>
+        To display the graph, we write a <code>while</code>-loop that
+        decrements <var>longest</var> after every iteration. Within every
+        iteration, we use a <code>for</code>-loop that runs through every
+        element of <var>len</var> to check if each length is greater than or
+        equal to <var>longest</var>. If it is, we print a
+        <code>'<samp>|</samp>'</code>; otherwise, we print a space. After the
+        <code>for</code>-loop finishes executing, we print a newline to begin
+        the next row. The <code>while</code>-loop runs until
+        <var>longest</var> reaches zero.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define IN 1    /* inside a word */
+    #define OUT 0   /* outside a word */
+    #define MAX 100 /* maximum number of words */
+    
+    main()
+    {
+        int c, i, state;
+        int longest;    /* longest word length */
+        int len[MAX];   /* lengths of words */
+    
+        for (i = 0; i &lt; MAX; ++i)
+            len[i] = 0;
+        i = -1;
+        state = OUT;
+        longest = 0;
+        while ((c = getchar()) != EOF) {
+            if (c == ' ' || c == '\n' || c == '\t') {
+                state = OUT;
+                if (i &gt;= 0 && len[i] &gt; longest)
+                    longest = len[i];
+            } else if (state == OUT) {
+                ++i;
+                state = IN;
+            }
+            if (state == IN)
+                ++len[i];
+        }
+        <ins>/* print the histogram */</ins>
+        <ins>while (longest &gt; 0) {</ins>
+            <ins>for (i = 0; len[i] &gt; 0; ++i) {</ins>
+                <ins>if (len[i] &gt;= longest)</ins>
+                    <ins>putchar('|');</ins>
+                <ins>else</ins>
+                    <ins>putchar(' ');</ins>
+            <ins>}</ins>
+            <ins>putchar('\n');</ins>
+            <ins>--longest;</ins>
+        <ins>}</ins>
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> because all elements in <var>len</var> were initialized to
+        zero and no word can have a length of zero, we know that when
+        <code>len[i]</code> is zero, we have reached the end of our lengths.
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_12.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

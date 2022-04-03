@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-17</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_16.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_17.c"
+          >Exercise 1-17</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a program to print all input lines that are longer than 80
+          characters.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        We begin by defining <var>line</var> and <var>len</var> to store input
+        lines and their lengths. In order to read in lines, as shown in the
+        longest-line program, we run <code>getline</code> within a
+        <code>while</code>-loop until it returns a value of zero, which signals
+        that it has read in an end-of-file.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define MAXLINE 1000    /* maximum input line size */
+    
+    int my_getline(char line[], int maxline);
+    
+    main()
+    {
+        int len;    /* current line length */
+        char line[MAXLINE]; /* current input line */
+    
+        while ((len = my_getline(line, MAXLINE)) &gt; 0)
+            /* code */;
+        return 0;
+    }</code></pre>
+
+      <p>
+        Now, we define the symbolic constant <code>MIN</code> to represent the
+        minimum length for a line to be printed (you should always use symbolic
+        constants in place of magic numbers such as 81.) For every line we read
+        in, if <var>len</var> is greater than or equal to <code>MIN</code>, we
+        print <var>line</var>.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    <ins>#define MIN 81          /* minimum size for line to be printed */</ins>
+    #define MAXLINE 1000    /* maximum input line size */
+    
+    int my_getline(char line[], int maxline);
+    
+    main()
+    {
+        int len;    /* current line length */
+        char line[MAXLINE]; /* current input line */
+    
+        while ((len = my_getline(line, MAXLINE)) &gt; 0)
+            <ins>if (len &gt;= MIN)</ins>
+                <ins>printf("%s", line);</ins>
+        return 0;
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_16.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

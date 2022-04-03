@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-18</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_17.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_18.c"
+          >Exercise 1-18</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a program to remove trailing blanks and tabs from each line of
+          input, and to delete entirely blank lines.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        We use <code>getline</code> to read our lines into <var>line</var> and
+        store their lengths into <var>len</var>. After reading in a line, we
+        execute a loop that runs as long as <code>line[len-2]</code>—the last
+        character before the newline—is a space or a tab and <var>len</var> is
+        greater than 1. To delete the trailing whitespace, during every
+        iteration, we replace <code>line[len-1]</code> (previously a newline)
+        with <code>\0</code>, replace <code>line[len-2]</code>
+        (previously a space or tab) with a newline, and decrement
+        <var>len</var>. Once we exit the loop, we only print the line if its
+        length is greater than 1.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define MAXLINE 1000    /* maximum input line size */
+    
+    int my_getline(char line[], int maxline);
+    
+    main()
+    {
+        int len;            /* current line length */
+        char line[MAXLINE]; /* current input line */
+    
+        while ((len = my_getline(line, MAXLINE)) &gt; 0) {
+            while (len &gt; 1 && (line[len-2] == ' ' || line[len-2] == '\t')) {
+                line[len-1] = '\0';
+                line[len-2] = '\n';
+                --len;
+            }
+            if (len &gt; 1)    /* ignore entirely blank lines */
+                printf("%s", line);
+        }
+        return 0;
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> notice how in the <code>while</code>-loop that deletes the
+        trailing spaces, we check if <code>len > 1</code> first. This is
+        important because if <var>len</var> was less than 1 and we did not
+        check it first, <code>line[len-2]</code> would be accessing a negative
+        index.
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_17.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

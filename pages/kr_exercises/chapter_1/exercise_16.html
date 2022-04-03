@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-16</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_15.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_16.c"
+          >Exercise 1-16</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Revise the main routine of the longest-line program so it will
+          correctly print the length of arbitrarily long input lines, and as
+          much as possible of the text.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        When <code>getline</code> comes across a line that is longer than
+        <var>lim</var>, it reads in <code>lim - 1</code> characters—the
+        <var>lim</var><sup>th</sup> element is saved for <code>\0</code>—and
+        hence <code>getline</code> will return <code>lim - 1</code>. In order
+        to make sure that our line was not actually <code>lim - 1</code>
+        characters long, we ensure that the last character (second-to-last
+        element) is not a newline. We can combine these two conditions to
+        detect when a line's length has exceeded <var>lim</var>, in which case
+        we read in characters with <code>getchar</code> until we reach a
+        newline, incrementing <var>len</var> for every character. Once our
+        program finishes reading in input, if <var>max</var> is greater than or
+        equal to <code>MAXLINE</code>, we also print its value alongside the
+        longest line.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    #define MAXLINE 1000    /* maximum input line size */
+    
+    int my_getline(char line[], int maxline);
+    void copy(char to[], char from[]);
+    
+    /* print longest input line */
+    main()
+    {
+        int len;            /* current line length */
+        int max;            /* maximum length seen so far */
+        char line[MAXLINE];     /* current input line */
+        char longest[MAXLINE];  /* longest line saved here */
+    
+        max = 0;
+        while ((len = my_getline(line, MAXLINE)) &gt; 0) <ins>{</ins>
+            <ins>/* line length exceeds MAXLINE */</ins>
+            <ins>if (len == MAXLINE - 1 && line[MAXLINE - 2] != '\n') {</ins>
+                <ins>while (getchar() != '\n')</ins>
+                    <ins>++len;</ins>
+                <ins>++len;  /* include newline */</ins>
+            <ins>}</ins>
+            if (len &gt; max) {
+                max = len;
+                copy(longest, line);
+            }
+        <ins>}</ins>
+        if (max &gt; 0)    /* there was a line */
+            printf("%s", longest);
+        <ins>if (max &gt;= MAXLINE)</ins>
+            <ins>printf("...\nLength: %d\n", max);</ins>
+        return 0;
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> on POSIX systems (such as macOS and GNU/Linux), there
+        exists a function called <code>getline</code> within the C library.
+        This function is not part of the C standard—for example, you will not
+        find it on Windows, but in order to alleviate any potential conflicts
+        and ambiguity, we have renamed our version of <code>getline</code> to
+        <code>my_getline</code>.
+      </p>
+      <p>
+        <b>Note:</b> you may have noticed that the function body for both
+        <code>getline</code> and <code>copy</code> is missing. We have done
+        this because we think the implementation details of the functions
+        detract from the exercise itself. In the actual source files, you will
+        find that the body of <code>getline</code> is present so that the code
+        will actually compile.
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_15.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-15</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_14.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_15.c"
+          >Exercise 1-15</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Rewrite the temperature conversion program of Section 1.2 to use a
+          function for conversion.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        The line <code>celsius = (5.0/9.0) * (fahr-32.0);</code> is where the
+        conversion occurs. We can return this expression from a function called
+        <code>convert</code> that takes in the floating-point value
+        <var>fahr</var> as a parameter. Then, we assign the value of
+        <code>convert(fahr)</code> to <var>celsius</var> within the loop.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    <ins>float convert(float fahr);</ins>
+    
+    /* print Fahrenheit-Celsius table
+        for fahr = 0, 20, ..., 300; floating-point version */
+    main()
+    {
+        float fahr, celsius;
+        int lower, upper, step;
+    
+        lower = 0;      /* lower limit of temperature table */
+        upper = 300;    /* upper limit */
+        step = 20;      /* step size */
+    
+        /* print Fahrenheit-Celsius table */
+        fahr = lower;
+        while (fahr &lt;= upper) {
+            <del>celsius = (5.0/9.0) * (fahr-32.0);</del>
+            <ins>celsius = convert(fahr);</ins>
+            printf("%3.0f %6.1f\n", fahr, celsius);
+            fahr = fahr + step;
+        }
+        return 0;
+    }
+    
+    <ins>/* convert:  convert fahrenheit temperature to celsius */</ins>
+    <ins>float convert(float fahr)</ins>
+    <ins>{</ins>
+        <ins>return (5.0/9.0) * (fahr-32.0);</ins>
+    <ins>}</ins></code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_14.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

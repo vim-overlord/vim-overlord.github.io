@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-14</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_13.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_14.c"
+          >Exercise 1-14</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a program to print a histogram of the frequencies of different
+          characters in its input.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        The first thing we do is store each character's frequency in an array
+        called <var>freq</var>. We can take advantage of the fact that a
+        <code>char</code> is really just a numeric value and use the character
+        itself as the index for its frequency (e.g. we store the frequency of
+        the character <code>'a'</code> in <code>freq['a']</code>.)
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define SIZE 128    /* number of chars in the ASCII char set */
+    
+    main()
+    {
+        int c, i;
+        int freq[SIZE]; /* frequencies of characters */
+    
+        for (i = 0; i &lt; SIZE; ++i)
+            freq[i] = 0;
+        while ((c = getchar()) != EOF)
+            ++freq[c];
+    }</code></pre>
+
+      <p>
+        To print the histogram, we have to iterate through
+        <var>freq</var> using a <code>for</code>-loop; if a frequency is
+        greater than zero, we print the character followed by another
+        <code>for</code>-loop that prints the number of dashes that corresponds
+        with the character's frequency. If the character is invisible, we print
+        its escape sequence instead.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define SIZE 128    /* number of chars in the ASCII char set */
+    
+    main()
+    {
+        int c, i<ins>, j</ins>;
+        int freq[SIZE]; /* frequencies of characters */
+    
+        for (i = 0; i &lt; SIZE; ++i)
+            freq[i] = 0;
+        while ((c = getchar()) != EOF)
+            ++freq[c];
+        <ins>/* print the histogram */</ins>
+        <ins>for (i = 0; i &lt; SIZE; ++i) {</ins>
+            <ins>if (freq[i] > 0) {</ins>
+                <ins>if (i == ' ')</ins>
+                    <ins>printf("\\ : ");</ins>
+                <ins>else if (i == '\n')</ins>
+                    <ins>printf("\\n: ");</ins>
+                <ins>else if (i == '\t')</ins>
+                    <ins>printf("\\t: ");</ins>
+                <ins>else if (i == '\\')</ins>
+                    <ins>printf("\\\\: ");</ins>
+                <ins>else</ins>
+                    <ins>printf("%2c: ", i);</ins>
+                <ins>for (j = 0; j &lt; freq[i]; ++j)</ins>
+                    <ins>putchar('-');</ins>
+                <ins>putchar('\n');</ins>
+            <ins>}</ins>
+        <ins>}</ins>
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> we use <code>%2c</code> because escape sequences are two
+        characters long. Doing this ensures the bars align regardless of
+        whether invisible characters are entered or not.
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_13.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

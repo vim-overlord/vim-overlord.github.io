@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-19</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_18.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_19.c"
+          >Exercise 1-19</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a function <code>reverse(s)</code> that reverses the character
+          string <var>s</var>. Use it to write a program that reverses its
+          input a line at a time.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        The only way we can manipulate character strings using functions (at
+        least for now) is by modifying the argument that is passed in. This
+        means we have to reverse our string in place. We will first need to
+        calculate the length of the string <var>s</var>. We do this by
+        declaring the integer variable <var>len</var> and using a
+        <code>for</code>-loop that increments <var>len</var> until
+        <code>s[len]</code> is equal to <code>\0</code>. We then decrement
+        <var>len</var> to exclude <code>\0</code>.
+      </p>
+
+      <pre><code>    /* reverse:  reverse character string s */
+    void reverse(char s[])
+    {
+        int len;
+    
+        for (len = 0; s[len] != '\0'; ++len)
+            ;
+        --len;  /* exclude \0 */
+    }</code></pre>
+
+      <p>
+        To reverse the string, we swap the first and the
+        <var>len</var><sup>th</sup> element, the second and the
+        <code>len-1</code><sup>th</sup> element, and so on, until <var>i</var>
+        reaches <code>len-i</code>. We can achieve this using a
+        <code>for</code>-loop that decrements <var>len</var> and increments
+        <var>i</var> after every swap. We swap the elements as follows, where
+        <var>x</var> and <var>y</var> are the elements we want to swap, and
+        <var>temp</var> is a variable we declare to store the <var>x</var>'s
+        value:
+      </p>
+
+      <pre><code>    temp = x;
+    x = y;
+    y = temp;</code></pre>
+
+      <p>
+        Putting it all together, our <code>reverse</code> function looks like
+        this:
+      </p>
+
+      <pre><code>    /* reverse:  reverse character string s */
+    void reverse(char s[])
+    {
+        <del>int len;</del>
+        <ins>int i, len, temp;</ins>
+    
+        for (len = 0; s[len] != '\0'; ++len)
+            ;
+        --len;  /* exclude \0 */
+        <ins>for (i = 0; i &lt; len; ++i) {</ins>
+            <ins>temp = s[i];</ins>
+            <ins>s[i] = s[len];</ins>
+            <ins>s[len] = temp;</ins>
+            <ins>--len;</ins>
+        <ins>}</ins>
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_18.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

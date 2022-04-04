@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-20</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_19.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_20.c"
+          >Exercise 1-20</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a program <code>detab</code> that replaces tabs in the input
+          with the proper number of blanks to space to the next tab stop.
+          Assume a fixed set of tab stops, say every <var>n</var> columns.
+          Should <var>n</var> be a variable or a symbolic parameter?
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        Firstly, <var>n</var> should be a symbolic parameter, because it
+        remains constant throughout the program.
+      </p>
+      <p>
+        To know where the next tab stop is, we need to know in which column the
+        tab character is in. To do this, we create an integer variable
+        <var>col</var> and increment it after reading in and printing a
+        character. We reset it to zero every time we come across a newline.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    /* detab:  replace tabs with spaces */
+    main()
+    {
+        int c;
+        int col;    /* current column */
+    
+        col = 0;
+        while ((c = getchar()) != EOF) {
+            putchar(c);
+            ++col;
+            if (c == '\n')
+                col = 0;
+        }
+        return 0;
+    }</code></pre>
+
+      <p>
+        Next, we define the symbolic constant <code>TABWIDTH</code> to
+        represent how many columns are in between tab stops. If the character
+        we read in is not a tab, we copy it to the output; if it is, we print a
+        sequence of spaces whilst updating <var>col</var> using a loop until we
+        reach the next tab stop. When we do, <code>col % TABWIDTH</code> will
+        be equal to zero. In case our tab character is already at the start of
+        a tab stop, we print a space and increment <var>col</var> prior to
+        executing the loop.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    <ins>#define TABWIDTH 4  /* columns between tap stops */</ins>
+    
+    /* detab:  replace tabs with spaces */
+    main()
+    {
+        int c;
+        int col;    /* current column */
+    
+        col = 0;
+        while ((c = getchar()) != EOF) {
+            <ins>if (c == '\t') {</ins>
+                <ins>if (col % TABWIDTH == 0) {  /* already at start of tab stop */</ins>
+                    <ins>putchar(' ');</ins>
+                    <ins>++col;</ins>
+                <ins>}</ins>
+                <ins>for (; col % TABWIDTH != 0; ++col)</ins>
+                    <ins>putchar(' ');</ins>
+            <ins>} else {</ins>
+                putchar(c);
+                ++col;
+            <ins>}</ins>
+            if (c == '\n')
+                col = 0;
+        }
+        return 0;
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_19.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-21</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_20.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_21.c"
+          >Exercise 1-21</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a program <code>entab</code> that replaces strings of blanks by
+          the minimum number of tabs and blanks to achieve the same spacing.
+          Use the same tab stops as for <code>detab</code>. When either a tab
+          or a single blank would suffice to reach a tab stop, which should be
+          given preference?
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        We first define the symbolic constant <code>TABWIDTH</code> to
+        represent how many columns are between tab stops, and <var>col</var>
+        which keeps track of which column we are on by incrementing after a
+        character is read in and printed, and resetting to zero whenever a
+        newline is read in.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define TABWIDTH 4  /* columns between tab stops */
+    
+    /* entab:  replace strings of spaces with tabs */
+    main()
+    {
+        int c;
+        int col;    /* current column */
+    
+        col = 0;
+        while ((c = getchar()) != EOF) {
+            putchar(c);
+            ++col;
+            if (c == '\n')
+                col = 0;
+        }
+        return 0;
+    }</code></pre>
+
+      <p>
+        Whenever we come across a blank, we enter a <code>while</code>-loop
+        that continues to run as long as the subsequent character is also a
+        blank. During every iteration, we increment a variable called
+        <var>blanks</var> that keeps track of how many consecutive blanks we
+        come across. If a tab character is entered, or
+        <code>col + blanks</code> reaches the next tab stop and
+        <var>blanks</var> is greater than one (otherwise single blanks could
+        get converted to tabs), we print a tab character and reset
+        <var>blanks</var> to zero. We also make sure to print a tab character
+        if a single blank that reached a tab stop and was buffered is
+        superseded by more blanks (e.g <kbd>abc &nbsp;d</kbd>; notice how the
+        first blank reaches a tab stop [four in this case] but there is more
+        whitespace afterward implying this is an indent.) Once we exit the
+        loop, we print any leftover blanks and continue reading in more input.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define TABWIDTH 4  /* columns between tab stops */
+    
+    /* entab:  replace strings of spaces with tabs */
+    main()
+    {
+        int c;
+        int col;    /* current column */
+        <ins>int blanks; /* number of consecutive blanks */</ins>
+    
+        col = <ins>blanks =</ins> 0;
+        while ((c = getchar()) != EOF) {
+            <ins>while (c == ' ' || c == '\t') {</ins>
+                <ins>/* account for previously skipped single blanks */</ins>
+                <ins>if ((col + blanks) % TABWIDTH == 0 && blanks == 1) {</ins>
+                    <ins>putchar('\t');</ins>
+                    <ins>++col;</ins>
+                    <ins>blanks = 0;</ins>
+                <ins>}</ins>
+                <ins>++blanks;</ins>
+                <ins>/* do not print tab character in place of single blank */</ins>
+                <ins>if (((col + blanks) % TABWIDTH == 0 && blanks &gt; 1) || c == '\t') {</ins>
+                    <ins>putchar('\t');</ins>
+                    <ins>col = col + (TABWIDTH - col % TABWIDTH);</ins>
+                    <ins>blanks = 0;</ins>
+                <ins>}</ins>
+                <ins>c = getchar();</ins>
+            <ins>}</ins>
+            <ins>while (blanks > 0) {</ins>
+                <ins>putchar(' ');</ins>
+                <ins>--blanks;</ins>
+            <ins>}</ins>
+            putchar(c);
+            ++col;
+            if (c == '\n')
+                col = 0;
+        }
+        return 0;
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> the expression <code>TABWIDTH - col % TABWIDTH</code> is
+        equal to the number of characters needed to reach the tab column
+        because <code>col % TABWIDTH</code> is equal to the number of
+        characters after the last tab stop.
+      </p>
+      <p>
+        <b>Note:</b> it is a good idea to not convert single blanks that lie on
+        a tab stop because otherwise, regular blanks could get converted to
+        tabs.
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_20.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

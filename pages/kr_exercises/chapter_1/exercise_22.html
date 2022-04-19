@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-22</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_21.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_22.c"
+          >Exercise 1-22</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a program to “fold” long input lines into two or more shorter
+          lines after the last non-blank character that occurs before the
+          <var>n</var>-th column of input. Make sure your program does
+          something intelligent with very long lines, and if there are no
+          blanks or tabs before the specified column.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        Our first instinct might be to create a variable that keeps track of
+        which column we are on, and print a newline if it exceeds a certain
+        constant.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define MAXLEN 80   /* column limit for output lines */
+    #define TABWIDTH 4  /* indent size */
+    
+    main()
+    {
+        int c, i;
+        int col;    /* current column */
+    
+        col = 0;
+        while ((c = getchar()) != EOF) {
+            if (col &gt; MAXLEN) {
+                putchar('\n');
+                col = 0;
+            }
+            putchar(c);
+            ++col;
+            if (c == '\t')
+                col = col + (TABWIDTH - col % TABWIDTH);
+            else if (c == '\n')
+                col = 0;
+        }
+        return 0;
+    }</code></pre>
+
+      <samp>
+        However, this approach does not work as intended as it also places line
+        breaks in be<br />
+        tween words.
+      </samp>
+      <p>
+        In order for our program to function correctly, it needs to be able to
+        recognize words. A technique that comes in handy when developing
+        programs of higher complexity is to write the steps of a program in
+        pseudocode. Let us try doing that with our program.
+      </p>
+
+      <pre><code>    while (character is not end-of-file indicator)
+        read in text until whitespace or until equal to column limit
+        if (printing the text passes column limit)
+            move to next line
+        print text
+        while (next character is blank or tab and column limit has not been passed)
+            read in and print character
+        if (column limit has been passed)
+            read in remaining whitespace
+            move to next line</code></pre>
+
+      <p>
+        It may be a bit unclear as to how we want our program to work, so let
+        us look at a few examples. For now, assume that the column limit is
+        ten.
+      </p>
+
+      <pre>    <samp>&gt; <kbd>hello, world</kbd>
+    
+    hello, 
+    world</samp></pre>
+
+      <p>
+        We first read in <kbd>hello,</kbd> and check if printing it means
+        crossing the column limit. This is not the case, so we just print the
+        text. Next, we print the space. Finally, we read in <kbd>world</kbd>.
+        If we were to print it out, we would pass the column limit, so we move
+        to the next line before printing <kbd>world</kbd>.
+      </p>
+      <p>
+        Let us see how we will deal with words longer than the column limit.
+      </p>
+
+      <pre>    <samp>&gt; <kbd>abcdefghijklm nopqrstuvwxyz</kbd>
+    
+    abcdefghij 
+    klm 
+    nopqrstuvw 
+    xyz</samp></pre>
+
+      <p>
+        To begin, we only read in <kbd>abcdefghijk</kbd>, because at that
+        point, the length of the text is equal to the column limit. Printing it
+        out does not mean we pass the column limit, so we just print the
+        string. The next character is not a whitespace, so the entire bottom
+        half of the loop gets skipped. Then, we read in <kbd>klm</kbd>.
+        Printing it out would mean crossing the column limit, so we move to the
+        next line and then print it. We then print out the whitespace. Next, we
+        read in <kbd>nopqrstuvw</kbd>. Printing it would cross the column
+        limit, so like before, we move to the next line prior to printing it
+        out. There is no whitespace afterward so the next part gets skipped.
+        Finally, we read in <kbd>xyz</kbd>. Once again, printing it would mean
+        passing the column limit, so we move to the next line first.
+      </p>
+      <p>What about when we have long sequences of whitespace?</p>
+
+      <pre>    <samp>&gt; <kbd>Lorem                    \
+    ipsum                    dolor</kbd>
+
+    Lorem     
+    ipsum     
+    dolor</samp></pre>
+
+      <p>
+        First, we read in and print <kbd>Lorem</kbd>. Then we keep reading in
+        and printing the spaces until we pass the column limit, at which point
+        we exit the loop. Then, we skip past the remaining whitespace. Next, we
+        read in <kbd>ipsum</kbd>. Printing it would mean crossing the column
+        limit, so we print a newline first. We then read in as much of the
+        whitespace as we can, and then skip past the rest. Like before,
+        printing <kbd>dolor</kbd> would mean passing the column limit, so we
+        move to the next line first. Notice how all the examples so far leave
+        trailing whitespace. We could try and avoid this, but that would only
+        complicate things since we would need to read one word ahead in order
+        to know if the whitespace will be trailing. Plus, we have already
+        written a program that deals with that situation!
+      </p>
+      <p>
+        Now that we have the steps down, we need to convert our pseudocode into
+        actual code. We start with the following template.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define MAXLEN 80   /* column limit for output lines */
+    #define TABWIDTH 4  /* indent size */
+    
+    main()
+    {
+        while ((c = getchar()) != EOF)
+            /* code */;
+        return 0;
+    }</code></pre>
+
+      <p>
+        In order to read in a word, we create the character array
+        <var>word</var> to store all the characters we read in up until a
+        whitespace character, or if the string's length exceeds
+        <code>MAXLEN</code>. We can also create the integer variable
+        <var>len</var> to store a word's length, which increments for every
+        character read in. Finally, we must also not forget to null-terminate
+        our string after it is finished being read into!
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define MAXLEN 80   /* column limit for output lines */
+    #define TABWIDTH 4  /* indent size */
+    
+    main()
+    {
+        <ins>int c;</ins>
+        <ins>char word[MAXLEN + 1];  /* current word */</ins>
+        <ins>int len;                /* current word length */</ins>
+    
+        while ((c = getchar()) != EOF) {
+            <ins>for (len = 0; c != ' ' && c != '\t' && c != '\n' && len &lt; MAXLEN;</ins>
+                <ins>++len) {</ins>
+                <ins>word[len] = c;</ins>
+                <ins>c = getchar();</ins>
+            <ins>}</ins>
+            <ins>word[len] = '\0';</ins>
+        }
+        return 0;
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> it is good practice to keep lines of your code shorter
+        than a certain character limit to keep it readable on smaller displays
+        (eighty characters is generally a good benchmark.) Remember, unlike
+        some other languages, C is not particularly strict about whitespace and
+        many constructs can span over multiple lines. After we finish writing
+        this program, you can have it do this for you!
+      </p>
+      <p>
+        <b>Note:</b> the size of <var>word</var> is <code>MAXLEN + 1</code>
+        in order to allocate space for the additional null character.
+      </p>
+      <p>
+        Printing the word is fairly straightforward: we use
+        <code>printf</code> and the <code>%s</code> format specifier. We will
+        also need to create the integer variable <var>col</var> to keep track
+        of our column by incrementing it by <var>len</var> for every word.
+        Before printing a word, if <code>col + len</code> is greater than
+        <code>MAXLEN</code>, we will need to print a newline and reset
+        <var>col</var> to zero.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define MAXLEN 80   /* column limit for output lines */
+    #define TABWIDTH 4  /* indent size */
+    
+    main()
+    {
+        int c;
+        <ins>int col;                /* current column */</ins>
+        char word[MAXLEN + 1];  /* current word */
+        int len;                /* current word length */
+    
+        <ins>col = 0;</ins>
+        while ((c = getchar()) != EOF) {
+            for (len = 0; c != ' ' && c != '\t' && c != '\n' && len &lt; MAXLEN;
+                ++len) {
+                word[len] = c;
+                c = getchar();
+            }
+            word[len] = '\0';
+            <ins>if (col + len &gt; MAXLEN) {</ins>
+                <ins>putchar('\n');</ins>
+                <ins>col = 0;</ins>
+            <ins>}</ins>
+            <ins>printf("%s", word);</ins>
+            <ins>col = col + len;</ins>
+        }
+        return 0;
+    }</code></pre>
+
+      <p>
+        After the word is printed, we need to deal with the whitespace that
+        comes after it. We want our program to be able to deal with sequences
+        of whitespace, so we use a loop that continues to run as long as the
+        next character is a blank or tab and <var>col</var> is less than or
+        equal to the column limit. During every iteration, we print the
+        whitespace character, increment <var>col</var> by the corresponding
+        amount, and read in the next character.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define MAXLEN 80   /* column limit for output lines */
+    #define TABWIDTH 4  /* indent size */
+    
+    main()
+    {
+        int c;
+        int col;                /* current column */
+        char word[MAXLEN + 1];  /* current word */
+        int len;                /* current word length */
+    
+        col = 0;
+        while ((c = getchar()) != EOF) {
+            for (len = 0; c != ' ' && c != '\t' && c != '\n' && len &lt; MAXLEN;
+                ++len) {
+                word[len] = c;
+                c = getchar();
+            }
+            word[len] = '\0';
+            if (col + len &gt; MAXLEN) {
+                putchar('\n');
+                col = 0;
+            }
+            printf("%s", word);
+            col = col + len;
+            <ins>for (len = 0; (c == ' ' || c == '\t') && col &lt;= MAXLEN; ++len) {</ins>
+                <ins>if (c == ' ')</ins>
+                    <ins>++col;</ins>
+                <ins>else if (c == '\t')</ins>
+                    <ins>col = col + (TABWIDTH - col % TABWIDTH);</ins>
+                <ins>putchar(c);</ins>
+                <ins>c = getchar();</ins>
+            <ins>}</ins>
+        }
+        return 0;
+    }</code></pre>
+
+      Finally,
+
+      <pre><code>    if (column limit has been passed)
+        read in remaining whitespace
+        move to next line</code></pre>
+
+      directly translates to
+
+      <pre><code>    if (col > MAXLEN) {
+        while (c == ' ' || c == '\t')
+            c = getchar();
+        putchar('\n');
+        col = 0;
+    }</code></pre>
+
+      so we can add that to our program.
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define MAXLEN 80   /* column limit for output lines */
+    #define TABWIDTH 4  /* indent size */
+    
+    main()
+    {
+        int c;
+        int col;                /* current column */
+        char word[MAXLEN + 1];  /* current word */
+        int len;                /* current word length */
+    
+        col = 0;
+        while ((c = getchar()) != EOF) {
+            for (len = 0; c != ' ' && c != '\t' && c != '\n' && len &lt; MAXLEN;
+                ++len) {
+                word[len] = c;
+                c = getchar();
+            }
+            word[len] = '\0';
+            if (col + len &gt; MAXLEN) {
+                putchar('\n');
+                col = 0;
+            }
+            printf("%s", word);
+            col = col + len;
+            for (len = 0; (c == ' ' || c == '\t') && col &lt;= MAXLEN; ++len) {
+                if (c == ' ')
+                    ++col;
+                else if (c == '\t')
+                    col = col + (TABWIDTH - col % TABWIDTH);
+                putchar(c);
+                c = getchar();
+            }
+            <ins>if (col &gt; MAXLEN) {</ins>
+                <ins>/* read in remaining whitespace if column limit is reached */</ins>
+                <ins>while (c == ' ' || c == '\t')</ins>
+                    <ins>c = getchar();</ins>
+                <ins>putchar('\n');</ins>
+                <ins>col = 0;</ins>
+            <ins>}</ins>
+        }
+        return 0;
+    }</code></pre>
+
+      <p>
+        Let's test our program with the test cases at the start of this page.
+        For now, we can change <code>MAXLEN</code> to ten. If we enter
+        <kbd>hello, world</kbd>, the output we get is
+      </p>
+
+      <pre><samp>    hello, 
+    orld</samp></pre>
+
+      <p>
+        with no newline after <samp>d</samp>. That does not match with what we
+        want. Let us try to trace the issue. First, our program reads in
+        <kbd>hello,</kbd>, and then prints it out. At this point,
+        <var>c</var> is equal to a space. Then, we print the space and
+        <code>'<kbd>w</kbd>'</code> is assigned to <var>c</var>. Now, we see
+        where the first problem is: we run <code>getchar</code> again at the
+        start of the next iteration. To fix this, we need to remove the
+        function call in the <code>while</code>-loop, and instead call
+        <code>getchar</code> at the start of the program to get it running.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define MAXLEN 10   /* column limit for output lines */
+    #define TABWIDTH 4  /* indent size */
+    
+    main()
+    {
+        int c;
+        int col;                /* current column */
+        char word[MAXLEN + 1];  /* current word */
+        int len;                /* current word length */
+    
+        col = 0;
+        <ins>c = getchar();</ins>
+        <del>while ((c = getchar()) != EOF) {</del>
+        <ins>while (c != EOF) {</ins>
+        ...
+    }</code></pre>
+
+      Now, the output we get is
+
+      <pre><samp>    hello,</samp>
+    (waiting for input)</pre>
+
+      <p>
+        Now <kbd>world</kbd> does not get printed at all. Let us continue
+        tracing our program from before. After <kbd>world</kbd> is read in, the
+        next character is a newline and it is what gets carried over to the
+        next iteration. This is not what we want. We want to print the newline,
+        and have the next character—<code>EOF</code> in this case—carry over to
+        the next iteration. Now we see why the input does not terminate: it
+        never receives the <code>EOF</code>. We can solve this by also running
+        the code inside the last <code>if</code>-statement when we come across
+        a newline, in addition to reading in the next character. Using the same
+        <code>if</code>-statement also means input with trailing whitespace
+        will also cause no issues since the <code>while</code>-loop will skip
+        past it.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define MAXLEN 80   /* column limit for output lines */
+    #define TABWIDTH 4  /* indent size */
+    
+    main()
+    {
+        int c;
+        int col;                /* current column */
+        char word[MAXLEN + 1];  /* current word */
+        int len;                /* current word length */
+    
+        col = 0;
+        c = getchar();
+        while (c != EOF) {
+            for (len = 0; c != ' ' && c != '\t' && c != '\n' && len &lt; MAXLEN;
+                ++len) {
+                word[len] = c;
+                c = getchar();
+            }
+            word[len] = '\0';
+            if (col + len &gt; MAXLEN) {
+                putchar('\n');
+                col = 0;
+            }
+            printf("%s", word);
+            col = col + len;
+            for (len = 0; (c == ' ' || c == '\t') && col &lt;= MAXLEN; ++len) {
+                if (c == ' ')
+                    ++col;
+                else if (c == '\t')
+                    col = col + (TABWIDTH - col % TABWIDTH);
+                putchar(c);
+                c = getchar();
+            }
+            if (col &gt; MAXLEN <ins>|| c == '\n'</ins>) {
+                /* read in remaining whitespace if column limit is reached */
+                while (c == ' ' || c == '\t')
+                    c = getchar();
+                putchar('\n');
+                col = 0;
+                <ins>if (c == '\n')</ins>
+                    <ins>c = getchar();  /* c carries over to next iteration */</ins>
+            }
+        }
+        return 0;
+    }</code></pre>
+
+      <p>
+        Now, all three of our inputs work as intended. For future exercises,
+        keep in mind that a good strategy to tackle them is to write the
+        program in pseudocode first.
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_21.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-23</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_22.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_23.c"
+          >Exercise 1-23</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a program to remove all comments from a C program. Don't forget
+          to handle quoted strings and character constants properly. C comments
+          do not nest.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        We start with the following code to copy inputted text to the terminal:
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    {
+        int c;
+    
+        while ((c = getchar()) != EOF)
+            putchar(c);
+        return 0;
+    }</code></pre>
+
+      <p>
+        The token <code>/*</code> marks the start of a comment and the token
+        <code>*/</code> indicates the end of a comment. We create the variable
+        <var>state</var> which will be assigned the symbolic constants
+        <code>IN</code> and <code>OUT</code> to keep track of whether we are
+        "inside" or "outside" of a comment. When we are inside a comment, we
+        skip past all the characters until we reach the end, at which point we
+        continue copying characters to the terminal.
+      </p>
+      <p>
+        To implement this, when we come across a slash, we check if the next
+        character is an asterisk; if it is not, we print the slash and continue
+        copying characters. Otherwise, we set <var>state</var> to
+        <code>IN</code> and enter a <code>while</code>-loop that runs until
+        <var>state</var> changes to <code>OUT</code>. This will occur when we
+        read in an asterisk followed by a slash. Once we exit the
+        <code>while</code>-loop, we read in the next character.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    <ins>#define IN 1    /* inside a comment */</ins>
+    <ins>#define OUT 0   /* outside a comment */</ins>
+    
+    main()
+    {
+        int c;
+        <ins>int state;  /* whether inside or outside of a comment */</ins>
+    
+        state = 0;
+        while ((c = getchar()) != EOF) {
+            <ins>if (c == '/') {</ins>
+                <ins>c = getchar();</ins>
+                <ins>if (c == '*') {</ins>
+                    <ins>state = IN;</ins>
+                    <ins>while (state == IN) {</ins>
+                        <ins>c = getchar();</ins>
+                        <ins>if (c == '*') {</ins>
+                            <ins>c = getchar();</ins>
+                            <ins>if (c == '/')</ins>
+                                <ins>state = OUT;</ins>
+                        <ins>}</ins>
+                    <ins>}</ins>
+                    <ins>c = getchar();</ins>
+                <ins>} else</ins>
+                    <ins>putchar('/');</ins>
+            <ins>}</ins>
+            putchar(c);
+        }
+        return 0;
+    }</code></pre>
+
+      <p>
+        There is one more thing we have not accounted for: string constants.
+        For example, if our program reads in <kbd>"/*"</kbd>, it will treat the
+        <code>/*</code> as the start of a comment despite it being part of a
+        character string. To avoid this, when we come across a double quote, we
+        print everything up until the closing quote, ignoring what is inside
+        the character string. We also have to be wary of escape sequences like
+        <code>\"</code>, so when we come across a backslash, we print the
+        second character of the escape sequence and assign the character
+        afterward to <var>c</var>, essentially ignoring the escape sequence.
+        Finally, when we read in and print a single quote, we subsequently read
+        in and print the rest of the literal (which is usually two more
+        characters, but three more when the literal is an escape sequence)
+        before moving on to the next iteration of the loop. This is to avoid
+        issues with the character literals <code>'"'</code> and
+        <code>'\"'</code>.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define IN 1    /* inside a comment */
+    #define OUT 0   /* outside a comment */
+    
+    main()
+    {
+        int c;
+        int state;  /* whether inside or outside of a comment */
+    
+        state = OUT;
+        while ((c = getchar()) != EOF) {
+            if (c == '/') {
+                c = getchar();
+                if (c == '*') {
+                    state = IN;
+                    while (state == IN) {
+                        c = getchar();
+                        if (c == '*') {
+                            c = getchar();
+                            if (c == '/')
+                                state = OUT;
+                        }
+                    }
+                } else
+                    putchar('/');
+            }
+            <ins>if (c == '"') {</ins>
+                <ins>putchar(c);</ins>
+                <ins>while ((c = getchar()) != '"') {</ins>
+                    <ins>putchar(c);</ins>
+                    <ins>/* ignore second character of escape sequence */</ins>
+                    <ins>if (c == '\\')</ins>
+                        <ins>putchar(getchar());</ins>
+                <ins>}</ins>
+            <ins>}</ins>
+            putchar(c);
+            <ins>if (c == '\'') {    /* avoid treating '"' as start of string */</ins>
+                <ins>if ((c = getchar()) == '\\') {</ins>
+                    <ins>putchar(c);</ins>
+                    <ins>c = getchar();</ins>
+                <code>}</code>
+                <ins>c = getchar();</ins>
+                <ins>putchar(c);</ins>
+                <ins>putchar(getchar());</ins>
+            <ins>}</ins>
+        }
+        return 0;
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> the statement <code>putchar(getchar())</code> might look
+        strange at first, but it is very much valid because
+        <code>getchar</code> returns—and is therefore equal to the next
+        character in the input stream. We are simply passing that value as an
+        argument for <code>putchar</code>.
+      </p>
+      <p>
+        <b>Note:</b> notice how we do not use an
+        "<code>else</code>-<code>if</code>" statement when checking for
+        double-quotes. This is by design. To understand why, try testing the
+        input <kbd>/* comment */"/* string"</kbd> with and without the
+        <code>else</code>-clause. Do you see why the behavior changes?
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_22.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

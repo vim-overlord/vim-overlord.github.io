@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 1-24</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="exercise_23.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_1/exercise_24.c"
+          >Exercise 1-24</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a program to check a C program for rudimentary syntax errors
+          like unbalanced parentheses, brackets and braces. Don't forget about
+          quotes, both single and double, escape sequences, and comments. (This
+          program is hard if you do it in full generality.)
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        Keeping in mind that a valid C program should have a closing sequence
+        for every opening sequence (e.g. <code>{...}</code>,
+        <code>"..."</code>, <code>/* ... */</code>, etc), we know that a valid
+        program must have an equal number of opening and closing sequences.
+        Therefore, every time we come across a <code>{</code>, for example, we
+        increment the <var>braces</var> counter, and when we come across its
+        closing sequence, <code>}</code>, we decrement the <var>braces</var>
+        counter. We do this for each type of bracket. If the program is valid,
+        all of these counters should be equal to zero in the end, and at no
+        point should they be less than zero. For the two types of quotes, we
+        use variables that switch between the constants <code>IN</code> and
+        <code>OUT</code>. When the program stops reading input, these variables
+        should be equal to <code>OUT</code> if the program is valid. We do a
+        similar thing with comments, except for them we need to read two
+        characters using nested <code>if</code>-statements. Finally, we also
+        make sure to skip past escape sequences.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define IN 1    /* inside a comment or string */
+    #define OUT 0   /* outside a comment or string */
+    
+    main()
+    {
+        int c;
+        int parens, brackets, braces;   /* counter for unbalanced brackets */
+        int character, string, comment; /* boolean values set to IN or OUT */
+    
+        parens = brackets = braces = 0;
+        character = string = comment = OUT;
+        while ((c = getchar()) != EOF) {
+            if (c == '\\') {    /* skip escape sequences */
+                getchar();
+                c = getchar();
+            }
+            if (c == '/') {
+                if ((c = getchar()) == '*')
+                    comment = IN;
+            } else if (c == '*')
+                if ((c = getchar()) == '/')
+                    comment = OUT;
+            if (c == '(')
+                ++parens;
+            else if (c == ')')
+                --parens;
+            else if (c == '[')
+                ++brackets;
+            else if (c == ']')
+                --brackets;
+            else if (c == '{')
+                ++braces;
+            else if (c == '}')
+                --braces;
+            else if (c == '\'') {
+                if (character == IN)
+                    character = OUT;
+                else
+                    character = IN;
+            } else if (c == '"') {
+                if (string == IN)
+                    string = OUT;
+                else
+                    string = IN;
+            }
+            if (parens &lt; 0) {
+                printf("Error: unbalanced parentheses\n");
+                parens = 0; /* avoid printing message for every character read */
+            } else if (brackets &lt; 0) {
+                printf("Error: unbalanced brackets\n");
+                brackets = 0;
+            } else if (braces &lt; 0) {
+                printf("Error: unbalanced braces\n");
+                braces = 0;
+            }
+        }
+        if (parens != 0)
+            printf("Error: unbalanced parentheses\n");
+        if (brackets != 0)
+            printf("Error: unbalanced brackets\n");
+        if (braces != 0)
+            printf("Error: unbalanced braces\n");
+        if (character == IN)
+            printf("Error: single quote expected\n");
+        if (string == IN)
+            printf("Error: double quote expected\n");
+        if (comment == IN)
+            printf("Error: '*/' expected\n");
+        return 0;
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> we check for comments first because if the program
+        contained a slash followed by a character that is not an asterisk, or
+        vice versa, the second character still needs to go through the series
+        of <code>if</code>-statements.
+      </p>
+      <p>
+        <b>Note:</b> notice how the <code>if</code>-statement that checks for a
+        slash has braces after it. They are necessary because otherwise, the
+        <code>else</code>-clause afterward would correspond to the nested
+        <code>if</code>-statement instead.
+      </p>
+      <p>
+        However, as you might have realized already, this approach is rather
+        inaccurate. For example, the input <kbd>{(})</kbd> is considered valid,
+        but <kbd>'}'</kbd> is not. Let us go back to the drawing board and
+        approach this problem in a different way.
+      </p>
+      <p>
+        The most intuitive solution to this exercise involves using recursion.
+        While it has not yet been explicitly covered in the book, the idea is
+        fairly easy to grasp. Recursion is what happens when you call a
+        function within its own body. One might think this would cause the
+        compiler to throw an error, but instead, the program will enter an
+        infinite loop. In order to avoid this, the function call needs to be
+        wrapped in an <code>if</code>-statement, so that when the condition is
+        no longer true, the loop breaks. To illustrate this, the code
+      </p>
+
+      <pre><code>    int i;
+    
+    for (i = 0; i &lt; 3; ++i)
+        printf("%d\n", i);</code></pre>
+
+      would be written as follows when using a recursive approach:
+
+      <pre><code>    void recursive(int i)
+    {
+        if (i &lt; 3) {
+            ++i;
+            printf("%d\n", i);
+            recursive(i);
+        }
+    }
+    
+    recursive(0);</code></pre>
+
+      <p>
+        <b>Note:</b> the order of the statements in recursion is of utmost
+        importance. For example, if <code>++i</code> came after the
+        <code>recursive</code> function call, it would never be reached.
+      </p>
+      <p>
+        What if we moved the <code>recursive</code> call before the
+        <code>printf</code> call?
+      </p>
+
+      <pre><code>    void recursive(int i)
+    {
+        if (i &lt; 3) {
+            ++i;
+            recursive(i);
+            printf("%d\n", i);
+        }
+    }
+    
+    recursive(0);</code></pre>
+
+      Then, we get the output
+
+      <pre><samp>    3
+    2
+    1</samp></pre>
+
+      <p>
+        because <code>recursive</code> calls itself until <var>i</var> is equal
+        to three, at which point it executes the <code>printf</code> statement.
+        Afterward, the program goes back to the second call of
+        <code>recursive</code> (when <var>i</var> was equal to two) and prints
+        <var>i</var>, and then the program goes to the first call of
+        <code>recursive</code> (when <var>i</var> was equal to one) and prints
+        <var>i</var>. In essence, it runs as follows, except whenever
+        <var>i</var> increments, it only applies to that instance of the
+        function call:
+      </p>
+
+      <pre><code>    void recursive(int i)
+    {
+        if (i &lt; 3) {
+            ++i;
+            if (i &lt; 3) {
+                ++i;
+                if (i &lt; 3) {
+                    ++i;
+                    if (i &lt; 3) {    /* the condition is not met */
+                        ++i;
+                        recursive(i);
+                        printf("%d\n", i);
+                    }
+                    printf("%d\n", i);
+                }
+                /* go back to second call of recursive */
+                printf("%d\n", i);
+            }
+            /* go back to first call of recursive */
+            printf("%d\n", i);
+        }
+    }
+    
+    recursive(0);</code></pre>
+
+      <p>
+        Let us get back to the problem at hand. The first thing we do is create
+        a function called <code>read_block</code>, which reads in a code block
+        until its closing character or <code>EOF</code> is reached and returns
+        the symbolic constant <code>YES</code> if the block is valid. If we
+        disregard strings and comments for now, a block is valid if it meets
+        three requirements:
+      </p>
+      <ol>
+        <li>Its closing sequence is found</li>
+        <li>There are no extra closing brackets</li>
+        <li>All the blocks within it are also valid</li>
+      </ol>
+      <p>The first two requirements are easy to implement:</p>
+
+      <pre><code>    #define YES 1
+    #define NO 0
+    
+    /* read_block:  reads a block until its closing sequence or EOF is reached;
+        returns YES block is valid, NO if block is invalid */
+    int read_block(int end)
+    {
+        int c;
+    
+        while ((c = getchar()) != EOF) {
+            if (c == end)
+                return YES;
+            /* check for closing braces without a corresponding opening brace */
+            else if (c == ')' || c == ']' || c == '}')
+                return NO;
+        }
+        return NO;
+    }</code></pre>
+
+      <p>
+        The first block we read in will have the closing sequence
+        <code>EOF</code>; in other words, it is the entire program. Then, every
+        time we come across an opening bracket, we call <code>read_block</code>
+        recursively and assign its return value to a variable called
+        <var>valid</var>, which keeps track of whether the current block is
+        valid. Whenever a block is no longer valid, we exit the
+        <code>while</code>-loop and return <code>NO</code>. This way, if any
+        instance of <code>read_block</code> ever returns <code>NO</code>, all
+        its parent blocks are rendered invalid too.
+      </p>
+
+      <pre><code>    <ins>#include &lt;stdio.h&gt;</ins>
+    
+    #define YES 1
+    #define NO 0
+    
+    <ins>int read_block(int end);</ins>
+    
+    <ins>main()</ins>
+    <ins>{</ins>
+        <ins>int valid;  /* whether the C program is valid or not */</ins>
+    
+        <ins>if ((valid = read_block(EOF)) == NO)</ins>
+            <ins>printf("syntax error!\n");</ins>
+        <ins>printf("syntax error!\n");</ins>
+    <ins>}</ins>
+    
+    /* read_block:  reads a block until its closing sequence or EOF is reached;
+        returns YES block is valid, NO if block is invalid */
+    int read_block(int end)
+    {
+        int c;
+        <ins>int valid;  /* whether current block is valid */</ins>
+    
+        <ins>valid = YES;</ins>
+        while ((c = getchar()) != EOF<ins> && valid == YES</ins>) {
+            if (c == end)
+                return YES;
+            /* check for closing braces without a corresponding opening brace */
+            else if (c == ')' || c == ']' || c == '}')
+                return NO;
+            <ins>else if (c == '(')</ins>
+                <ins>valid = read_block(')');</ins>
+            <ins>else if (c == '[')</ins>
+                <ins>valid = read_block(']');</ins>
+            <ins>else if (c == '{')</ins>
+                <ins>valid = read_block('}');</ins>
+        }
+        <ins>if (c != EOF)</ins>
+            return NO;
+        <ins>else</ins>
+            <ins>return valid;</ins>
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> we normally exit the <code>while</code>-loop when a block
+        is not valid. The one exception is the caller in <code>main</code>,
+        which will also exit the loop when the entire program is finished being
+        read. This is the reason for the <code>if</code>-statement at the
+        bottom.
+      </p>
+      <p>
+        Most of the hard work has now been done and adding support for strings
+        and comments is relatively easy. We create the two functions
+        <code>read_cmt</code> and <code>read_str</code> which when called read
+        in all the characters up until their closing sequences. In the case of
+        <code>read_str</code>, we also pass in the kind of quote as an argument
+        and make sure to ignore escape sequences. Both functions return
+        <code>YES</code> if their closing sequence is found, and
+        <code>NO</code> if they read in an <code>EOF</code>. Similar to the
+        brackets, the functions get called when their opening sequences are
+        found in <code>read_block</code>, and their return value is assigned to
+        <var>valid</var>.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    #define YES 1
+    #define NO 0
+    
+    int read_block(int end);
+    <ins>int read_str(char quote);</ins>
+    <ins>int read_cmt(void);</ins>
+    
+    main()
+    {
+        int valid;  /* whether the C program is valid or not */
+    
+        if ((valid = read_block(EOF)) == NO)
+            printf("syntax error!\n");
+        return 0;
+    }
+    
+    /* read_block:  reads a block until its closing sequence or EOF is reached;
+        returns YES block is valid, NO if block is invalid */
+    int read_block(int end)
+    {
+        int c;
+        int valid;  /* whether current block is valid */
+    
+        valid = YES;
+        while ((c = getchar()) != EOF && valid == YES) {
+            <ins>if (c == '/') {</ins>
+                <ins>c = getchar();</ins>
+                <ins>if (c == '*')</ins>
+                    <ins>if ((valid = read_cmt()) == YES)</ins>
+                        <ins>c = getchar();</ins>
+            <ins>}</ins>
+            if (c == end)
+                return YES;
+            /* check for closing braces without a corresponding opening brace */
+            else if (c == ')' || c == ']' || c == '}')
+                return NO;
+            else if (c == '(')
+                valid = read_block(')');
+            else if (c == '[')
+                valid = read_block(']');
+            else if (c == '{')
+                valid = read_block('}');
+            <ins>else if (c == '\'')</ins>
+                <ins>valid = read_str('\'');</ins>
+            <ins>else if (c == '"')</ins>
+                <ins>valid = read_str('"');</ins>
+        }
+        if (c != EOF)
+            return NO;
+        else
+            return valid;
+    }
+    
+    <ins>/* read_str:  reads a quoted string and returns YES if it terminates */</ins>
+    <ins>int read_str(char quote)</ins>
+    <ins>{</ins>
+        <ins>int c;</ins>
+    
+        <ins>while ((c = getchar()) != EOF) {</ins>
+            <ins>if (c == quote)</ins>
+                <ins>return YES;</ins>
+            <ins>/* ignore second character in escape sequence */</ins>
+            <ins>if (c == '\\')</ins>
+                <ins>getchar();</ins>
+        <ins>}</ins>
+        <ins>return NO; /* end quote missing */</ins>
+    <ins>}</ins>
+    
+    <ins>/* read_cmt:  reads a comment and returns YES if it terminates */</ins>
+    <ins>int read_cmt(void)</ins>
+    <ins>{</ins>
+        <ins>int c;</ins>
+    
+        <ins>while ((c = getchar()) != EOF)  </ins>
+            <ins>if (c == '*')</ins>
+                <ins>if ((c = getchar()) == '/')</ins>
+                    <ins>return YES;</ins>
+        <ins>return NO; /* comment never terminates */</ins>
+    <ins>}</ins></code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="exercise_23.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

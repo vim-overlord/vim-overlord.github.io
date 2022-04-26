@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 2-1</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="../chapter_1/exercise_24.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_2/exercise_01.c"
+          >Exercise 2-1</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a program to determine the ranges of <code>char</code>,
+          <code>short</code>, <code>int</code>, and <code>long</code>
+          variables, both <code>signed</code> and <code>unsigned</code>, by
+          printing appropriate values from standard headers and by direct
+          computation. Harder if you compute them: determine the ranges of the
+          various floating-point types.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        In Appendix B, there are two charts that list all the constants defined
+        in <code>&lt;limits.h&gt;</code> and <code>&lt;float.h&gt;</code>.
+      </p>
+      <img
+        src="/images/limits.jpeg"
+        alt="Constants defined in &lt;limits.h&gt;"
+        style="width: 33%; float: left"
+      /><br />
+      <img
+        src="/images/float_limits.jpeg"
+        alt="Constants defined in &lt;float.h&gt;"
+        style="width: 33%; margin-left: 10px"
+      />
+      <p>
+        We can include the two header files and print the value of the
+        constants we need to know.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    #include &lt;limits.h&gt;
+    #include &lt;float.h&gt;
+    
+    main()
+    {
+        printf("signed char: %d to %d\n", SCHAR_MIN, SCHAR_MAX);
+        printf("unsigned char: 0 to %d\n", UCHAR_MAX);
+        printf("signed int: %d to %d\n", INT_MIN, INT_MAX);
+        printf("unsigned int: 0 to %u\n", UINT_MAX);
+        printf("signed short: %d to %d\n", SHRT_MIN, SHRT_MAX);
+        printf("unsigned short: 0 to %d\n", USHRT_MAX);
+        printf("signed long: %ld to %ld\n", LONG_MIN, LONG_MAX);
+        printf("unsigned long: 0 to %lu\n", ULONG_MAX);
+        printf("float: %g to %g\n", FLT_MIN, FLT_MAX);
+        printf("double: %g to %g\n", DBL_MIN, DBL_MAX);
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> these constants are implementation-defined and considering
+        this book was written when 32-bit machines prevailed, you will likely
+        find that some of the limits differ from what is listed in the charts.
+      </p>
+      <p>
+        <b>Note:</b> in the code above, we also see some new format specifiers:
+        <code>%u</code>, <code>%ld</code>, <code>%lu</code>, and
+        <code>%g</code>. The first is used for <code>unsigned</code> integers
+        and the specifiers with <code>l</code> correspond to the long types.
+        Perhaps the most interesting of these is <code>%g</code>; it works with
+        both <code>float</code> and <code>double</code> literals and displays
+        them in scientific notation. See
+        <a href="https://en.wikipedia.org/wiki/C_data_types#Main_types"
+          >this page</a
+        >
+        for the full list of valid format specifiers.
+      </p>
+      <p>
+        <b>Note:</b> the limits for the floating-point minimums
+        (<code>FLT_MIN</code> and <code>DBL_MIN</code>) are not set to the
+        actual minimum value of the type, but rather the smallest positive
+        normalized value (we will look into what that word means soon.)
+      </p>
+      <p>
+        Let us now look at how we can compute the limits. This exercise
+        alongside many to come leave lots of room for interpretation. What does
+        it mean to compute a limit? Here, we look at two ways.
+      </p>
+      <p>
+        The first method revolves around the idea that after a variable reaches
+        its limit, attempting to increment its value would result in the
+        incorrect value. We create a <var>temp</var> variable alongside two
+        other variables to store the minimum and maximum values. In order to
+        calculate the maximum value, we set <var>temp</var> to one and
+        <var>max</var> to zero to start. We then enter a <code>for</code>-loop
+        that increments both values every iteration and runs as long as
+        <var>temp</var> is one more than <var>max</var> (i.e. as long as the
+        behavior is as expected). We do the same thing to calculate
+        <var>min</var>, except <var>temp</var> will always be one less and both
+        values will decrement every iteration instead.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    {
+        signed char min, max, temp;
+        unsigned char umax;
+    
+        min = max = 0;
+        for (temp = -1; temp == min - 1; --temp)
+            --min;
+        for (temp = 1; temp == max + 1; ++temp)
+            ++max;
+        for (temp = 1; temp == umax + 1; ++temp)
+            ++umax;
+        printf("signed char: %d to %d\n", min, max);
+        printf("unsigned char: 0 to %d\n", umax);
+        /* the rest of the limits are computed the same way */
+    }</code></pre>
+
+      <p>
+        Although all the limits are implementation-defined, most
+        implementations will have <code>signed char</code>s ranging from -128
+        to 127 and <code>unsigned char</code>s ranging from 0 to 255. This is
+        because a <code>char</code> usually takes up a byte, or eight bits in
+        memory. 1111 1111<sub>binary</sub> translates to 255, the maximum value
+        of an <code>unsigned char</code>. As for <code>signed char</code>s, in
+        a two's complement machine (which is most machines these days), the
+        leftmost bit has the place value -128 in order to also allow negative
+        values. Thus, 1000 0000 (-128<sub>10</sub>) and 0111 1111
+        (127<sub>10</sub>) correspond to the limits of a
+        <code>signed char</code>. Perhaps we can use this information to find
+        another way to calculate the limits.
+      </p>
+      <p>
+        The method we had previously used works, but it would take an
+        unfathomably long time to calculate the limits of longer types, such as
+        <code>unsigned long</code>. Knowing that values are stored as bits
+        under the hood, a more informed approach would be to multiply by two
+        every iteration instead. We can employ a similar tactic from before
+        where we create two variables, multiply one first, and assign its value
+        to the other as long as it is still within the range. This continues
+        until the variable goes out of the range. If <var>max</var> and
+        <var>temp</var> are <code>unsigned char</code>s, by the end,
+        <var>max</var> will be equal to 128, or 1000 0000<sub>binary</sub>. The
+        negative of <var>max</var> is the minimum value for a
+        <code>signed char</code>, one less is the maximum value, and
+        <code>max + (max - 1)</code> (i.e. 1000 0000<sub>binary</sub> + 0111
+        1111<sub>binary</sub>) is the maximum value for an
+        <code>unsigned char</code>. The same logic applies to the other types.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    {
+        unsigned char max, temp;
+    
+        temp = 2;
+        for (max = 1; max == temp / 2; temp = temp * 2)
+            max = c;
+        printf("signed char: %d to %d\n", -max, max - 1);
+        max = max + (max - 1);
+        printf("unsigned char: 0 to %d\n", max);
+        /* the rest of the limits are computed the same way */
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> we check if <code>max == temp / 2</code> instead of
+        <code>temp == max * 2</code> because when <var>max</var> reaches the
+        maximum value, multiplying it by two would give us the wrong value.
+      </p>
+      <p>
+        <b>Note:</b> we write <code>max + (max - 1)</code> instead of
+        <code>max * 2 - 1</code> because the value of <code>max * 2</code>
+        exceeds the maximum value for a <code>unsigned char</code>.
+      </p>
+      <p>
+        You might have realized that the approach we have used here does not
+        work with the floating-point types. This is because they are stored in
+        a different way. To be able to calculate their limits, we first need to
+        take a look at how floating-point numbers work.
+      </p>
+      <p>
+        Floating-point is analogous to scientific notation, but it uses binary
+        instead. Almost all implementations of floating-point numbers use the
+        standard <a href="https://en.wikipedia.org/wiki/IEEE_754">IEEE 754</a>,
+        which states that the bits allocated to a floating-point number are
+        split into three parts: the sign bit, the exponent, and the fraction.
+        The sign bit comes first and it determines if the number is positive or
+        negative. The exponent is the power of two the number is multiplied by,
+        similar to how numbers are multiplied by powers of ten in scientific
+        notation. In a 32-bit floating-point number, eight bits are allocated
+        to the exponent, so its value is shifted by -127 in order to also allow
+        negative exponents. This means 1000 0000 represents one, not 128.
+        Finally, the fraction is the part that contains the digits of the
+        number using binary place values (e.g. 1/2, 1/4, 1/8, etc.) In
+        scientific notation, the first digit of the fraction must be nonzero,
+        and in binary, there is only one nonzero digit: one, so it is implied
+        and not included in the bits for the fraction. Here are a few examples
+        of the bit representations for various floating-point values.
+      </p>
+      <table>
+        <tr>
+          <th>Floating-point (32-bit)</th>
+          <th>Translation</th>
+        </tr>
+        <tr>
+          <td>0 10000000 01000000000000000000000</td>
+          <td>1.25 * 2<sup>1</sup></td>
+        </tr>
+        <tr>
+          <td>1 10000010 10000000000000000000000</td>
+          <td>-1.5 * 2<sup>3</sup></td>
+        </tr>
+        <tr>
+          <td>0 01111101 11000000000000000000000</td>
+          <td>1.75 * 2<sup>-2</sup></td>
+        </tr>
+      </table>
+      <p>
+        <b>Note:</b> Floating-point values tend to be inaccurate. For example,
+        0.1 is stored as 0.100000001490116119384765625 because a tenth in
+        binary is 0.1001... and there are not an infinite number of bits to
+        store the value. To account for this, past a certain threshold the
+        number gets rounded.
+        <a href="https://en.wikipedia.org/wiki/Round-off_error">This page</a>
+        has more details about rounding errors.
+      </p>
+      <p>
+        <b>Note:</b> When the exponent is set to all zeros (equivalent to -127
+        in a 32-bit floating-point number), the number becomes denormalized.
+        This means that the leading one for the fraction is no longer implied.
+        This allows for very small values to be stored at the expense of
+        accuracy. As mentioned previously, the constants <code>FLT_MIN</code>
+        and <code>DBL_MIN</code> are equal to the smallest
+        <strong>normalized</strong> values, and that is what we will be
+        calculating for as well.
+      </p>
+      <p>
+        With this in mind, the largest normalized value for a
+        <code>float</code> is the fraction 2.0 times the largest exponent, and
+        the smallest normalized value is the fraction 1.0 divided by one less
+        than the largest exponent. We can calculate the exponent in the same
+        way we calculated the limits for the integer types.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    
+    main()
+    {
+        float exponent, temp;
+    
+        temp = 2.0;
+        for (exponent = 1.0; exponent == temp / 2.0; temp = temp * 2.0)
+            exponent = f;
+        printf("float: %g to %g\n", 1.0 / (exponent / 2.0), 2.0 * exponent);
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> in case it was unclear, multiplying <var>exponent</var>
+        by two is the equivalent of doubling the exponent part of its bit
+        representation whilst leaving the fraction part as 1.0.
+      </p>
+      <p>
+        <b>Note:</b> In order for this to work with <code>double</code>, for
+        the maximum, we multiply <var>exponent</var> by 1.999999999999999
+        instead of 2.0 in order to avoid the number rounding to Infinity.
+        Calculating floating-point limits is extremely finicky and so
+        1.999999999999999 may not work on all implementations. You can play
+        around with this yourself to find out at what value the number rounds
+        up for you. If you ever need to use the limits in one of your programs
+        (especially for a floating-point value), there is a reason why
+        pre-defined constants exist!
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="../chapter_1/exercise_24.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

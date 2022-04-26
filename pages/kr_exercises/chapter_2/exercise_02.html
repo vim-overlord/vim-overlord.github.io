@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 2-2</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_01.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_2/exercise_02.c"
+          >Exercise 2-2</a
+        >
+      </h1>
+      <blockquote>
+        <pre><code>for (i=0; i&lt;lim-1 && (c=getchar()) != '\n' && c != EOF; ++i)
+    s[i] = c;</code></pre>
+
+        <i>
+          Write a loop equivalent to the for loop above without using
+          <code>&&</code> or <code>||</code>.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        First, we create a variable called <var>finished</var> which can be set
+        to <code>NO</code> or <code>YES</code> (we create these constants using
+        an <code>enum</code>.) We then enter a <code>while</code>-loop that has
+        the condition <code>!finished</code>, which means the loop will
+        terminate once <var>finished</var> is equal to <code>YES</code>. Then,
+        within every iteration of the loop, we check if the three conditions
+        are true using a series of nested <code>if</code>-statements, and
+        execute <code>s[i] = c</code> if all three are satisfied. However, if
+        any one of them is not satisfied at any point, we set
+        <var>finished</var> to <code>YES</code>, terminating the loop.
+      </p>
+
+      <pre><code>    enum boolean { NO, YES };
+    
+    /* getline:  read a line into s, return length */
+    int my_getline(char s[], int lim)
+    {
+        int c;
+        int i = 0;
+        int finished = NO;
+    
+        while (!finished) {
+            if (i &lt; lim - 1) {
+                if ((c = getchar()) != EOF) {
+                    if (c != '\n') {
+                        s[i] = c;
+                        ++i;
+                    } else
+                        finished = YES;
+                } else
+                    finished = YES;
+            } else
+                finished = YES;
+        }
+        ...
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_01.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

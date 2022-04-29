@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 2-3</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_02.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_2/exercise_03.c"
+          >Exercise 2-3</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write the function <code>htoi(s)</code>, which converts a string of
+          hexadecimal digits (including an optional <kbd>0x</kbd> or
+          <kbd>0X</kbd>) into its equivalent integer value. The allowable
+          digits are <kbd>0</kbd> through <kbd>9</kbd>, <kbd>a</kbd> through
+          <kbd>f</kbd>, and <kbd>A</kbd> through <kbd>F</kbd>.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>We can use <code>atoi</code> as a template for our function.</p>
+
+      <pre><code>    /* atoi:  convert s to integer */
+    int atoi(char s[])
+    {
+        int i, n;
+    
+        n = 0;
+        for (i = 0; s[i] &gt;= '0' && s[i] &lt;= '9'; ++i)
+            n = 10 * n + (s[i] - '0');
+        return n;
+    }</code></pre>
+
+      <p>
+        In <code>atoi</code>, every digit that is read in is multiplied by ten
+        because, in base-ten, the place values are powers of ten. Since we are
+        converting to hexadecimal, we will need to multiply by sixteen.
+      </p>
+      <p>
+        To deal with the digits <kbd>a</kbd> to <kbd>f</kbd>, we change the
+        condition of the loop so it runs until the string terminates, and we
+        also make sure to convert the character to lowercase using the function
+        <code>tolower</code> so that uppercase characters work as well. The
+        digits <kbd>a</kbd> to <kbd>f</kbd> have the value
+        <code>digit - 'a' + 10</code>. Finally, after the loop has terminated,
+        if the first character—<code>s[0]</code>—is a minus, we return
+        <code>-n</code> instead.
+      </p>
+
+      <pre><code>    /* htoi:  convert a string of hex digits into an int */
+    int htoi(char s[])
+    {
+        int i, n;
+    
+        for (i = n = 0; (s[i] = tolower(s[i])) != '\0'; ++i) {
+            if (isdigit(s[i]))
+                n = 16 * n + (s[i] - '0');
+            else if (s[i] &gt;= 'a' && s[i] &lt;= 'f')
+                n = 16 * n + (s[i] - 'a' + 10);
+        }
+        if (s[0] == '-')
+            return -n;
+        else
+            return n;
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> our code can accept <kbd>0x</kbd> because the initial zero
+        does not change <var>n</var> at all, and characters that are not digits
+        are ignored.
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_02.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

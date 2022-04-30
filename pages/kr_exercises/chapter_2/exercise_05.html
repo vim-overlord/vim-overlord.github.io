@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 2-5</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_04.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_2/exercise_05.c"
+          >Exercise 2-5</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write the function <code>any(s1,s2)</code>, which returns the first
+          location in the string <var>s1</var> where any character from the
+          string <var>s2</var> occurs, or <code>-1</code> if <var>s1</var>
+          contains no characters from <var>s2</var>. (The standard library
+          function <code>strpbrk</code> does the same job but returns a pointer
+          to the location.)
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        For every character of <var>s1</var>, we need to compare it with every
+        character of <var>s2</var>. This seems to call for a pair of nested
+        <code>for</code>-loops! If at any point a character in
+        <var>s1</var> equals a character in <var>s2</var>, we return the index
+        of the character in <var>s1</var>. However, if we reach the end of the
+        loop—which can only occur if we had not already returned from the
+        function—we return <code>-1</code>.
+      </p>
+
+      <pre><code>    /* any:  return location of first occurence of any character from s2 in s1 */
+    int any(char s1[],  char s2[])
+    {
+        int i, j;
+    
+        for (i = 0; s1[i] != '\0'; ++i)
+            for (j = 0; s2[j] != '\0'; ++j)
+                if (s1[i] == s2[j])
+                    return i;
+        return -1;
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_04.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

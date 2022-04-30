@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 2-4</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_03.html">prev</a>
+        <a href="../about.html">top</a>
+        <hr />
+      </nav>
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_2/exercise_04.c"
+          >Exercise 2-4</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write an alternate version of <code>squeeze(s1,s2)</code> that
+          deletes each character in <var>s1</var> that matches any character
+          in the string <var>s2</var>.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        In order to delete each character from <var>s2</var>, we need to run
+        the code for each element of <var>s2</var>. We achieve this by creating
+        the index variable <var>k</var> that increments at the end of each
+        iteration of a <code>for</code>-loop that runs until <code>s2[k]</code>
+        is equal to <code>\0</code>. During each iteration, we compare the
+        characters of <var>s1</var> to <code>s2[k]</code> so that by the time
+        the loop finishes, all characters of <var>s2</var> are covered.
+      </p>
+
+      <pre><code>    /* squeeze:  delete all chars in s2 from s1 */
+    void squeeze(char s1[], char s2[])
+    {
+        int i, j, k;
+    
+        for (k = 0; s2[k] != '\0'; k++) {
+            for (i = j = 0; s1[i] != '\0'; i++)
+                if (s1[i] != s2[k])
+                    s1[j++] = s1[i];
+            s1[j] = '\0';
+        }
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <a href="./exercise_03.html">prev</a>
+      <a href="../about.html">top</a>
+    </footer>
+  </body>
+</html>

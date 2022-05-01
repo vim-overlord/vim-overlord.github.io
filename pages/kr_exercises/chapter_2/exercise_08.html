@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 2-8</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_07.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_2/exercise_08.c"
+          >Exercise 2-8</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a function <code>rightrot(x,n)</code> that returns the value of
+          the integer <var>x</var> rotated to the right by <var>n</var> bit
+          positions.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        Assuming that an <code>unsigned int</code> is 32 bits long, the
+        simplest way to approach this problem would be to shift <var>x</var>
+        <var>n</var> bits to the right, and use the OR operator on that and
+        <var>x</var> shifted <code>32 - n</code> bits to the left (this moves
+        the rightmost <var>n</var> bits to the leftmost positions.)
+      </p>
+
+      <pre><code>    /* rightrot:  returns x rotated to the right by n bit positions */
+    unsigned rightrot(unsigned x, int n)
+    {
+        return (x &gt;&gt; n) | (x &lt;&lt; (32 - n));
+    }</code></pre>
+
+      <p>
+        However, there is one major issue with this solution: it
+        <strong>assumes</strong> that an <code>unsigned int</code> is 32-bit.
+        Remember, this is implementation-defined! So we have to find a way to
+        rotate the bits that works regardless of the length of the bit string.
+      </p>
+      <p>
+        The simplest way to do this would be to use a <code>for</code>-loop
+        that runs <var>n</var> times and rotates the integer bit-by-bit. If the
+        last bit is a one (we can check for this by masking all but the last
+        bit: <code>x & 1U == 1U</code>), in addition to shifting to the right
+        by one, we also replace the leftmost bit with a one. To achieve this,
+        we use the OR operator on the shifted string and a bit string with one
+        in the leftmost position and zeros in the remaining positions. We can
+        create the second bit string by starting with <code>~0U</code>,
+        shifting it one to the right, and inverting it.
+      </p>
+
+      <pre><code>    /* rightrot:  return x rotated to the right by n bit positions */
+    unsigned rightrot(unsigned x, int n)
+    {
+        for (; n > 0; --n) {
+            if ((x & 1U) == 1U)
+                x = (x &gt;&gt; 1) | ~(~0U &gt;&gt; 1);
+            else
+                x = x &gt;&gt; 1;
+        }
+        return x;
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_07.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

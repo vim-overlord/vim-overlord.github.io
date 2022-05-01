@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 2-7</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_06.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_2/exercise_07.c"
+          >Exercise 2-7</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a function <code>invert(x,p,n)</code> that returns
+          <var>x</var> with the <var>n</var> bits that begin at position
+          <var>p</var> inverted (i.e., 1 changed into 0 and vice versa),
+          leaving the others unchanged.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        At first, you may think that we will need to separate the bits we need
+        to compute, invert them, and then combine them with the original
+        string. However, there is a simpler method. Notice that when bits are
+        XORed with ones, they get inverted (e.g.
+        <code>1010<sub>binary</sub> ^ 1111<sub>binary</sub> = 0101<sub>binary</sub></code>.)
+        Now, this exercise becomes trivial. We create the necessary bitmask by
+        starting with <code>~0U</code>, shifting it <var>p</var> bits left,
+        inverting it, and shifting it <code>p + 1 - n</code> bits left. Then,
+        we simply use the XOR operator on <var>x</var> and the bitmask.
+      </p>
+
+      <pre><code>    /* invert:  return x with n bits starting from p inverted */
+    unsigned invert(unsigned x, int p, int n)
+    {
+        return x ^ ((~(~0U &lt;&lt; n)) &lt;&lt; (p + 1 - n));
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_06.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

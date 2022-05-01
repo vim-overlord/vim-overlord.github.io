@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 2-6</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_05.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_2/exercise_06.c"
+          >Exercise 2-6</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a function <code>setbits(x,p,n,y)</code> that returns
+          <var>x</var> with the <var>n</var> bits that begin at position
+          <var>p</var> set to the rightmost <var>n</var> bits of <var>y</var>,
+          leaving the other bits unchanged.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        This exercise may look daunting at first, so let us try breaking it
+        down and see what it is really asking for.
+      </p>
+      <p>
+        Imagine <var>x</var> is 10101010<sub>binary</sub>, <var>y</var> is
+        01010101<sub>binary</sub>, <var>p</var> is 5<sub>10</sub>, and
+        <var>n</var> is 4<sub>10</sub>. What we need to do is replace the four
+        bits starting at position five—10<u>1010</u>10—with the last four bits
+        of <var>y</var>—0101. So the value returned should be
+        10010110<sub>binary</sub>.
+      </p>
+      <p>
+        Let us break this process into steps. The first thing we need to do is
+        replace the four bits with zeros. In order to do this, we use the AND
+        operator as follows:
+        <code>10101010<sub>binary</sub> & 11000011<sub>binary</sub></code>.
+        Obviously, the bitmask 11000011 only works for this specific scenario
+        and for other values of <var>n</var> and <var>p</var>, we would need a
+        different mask, so let us take a look at how we will generate the
+        bitmask in terms of <var>n</var> and <var>p</var>.
+      </p>
+      <p>
+        We start with <code>~0</code> (11111111<sub>binary</sub>). We then
+        shift it <var>n</var> bits to the left. Doing this changes the
+        rightmost <var>n</var> bits to zeros (11110000.) Next, we invert the
+        bits (00001111) and then shift them <code>p + 1 - n</code> bits to the
+        left (00111100.) We use <code>p + 1</code> because the rightmost bit
+        has position zero. Finally, we invert the bits (11000011.) Putting this
+        all together, we get the code
+        <code>~(~(~0 &lt;&lt; n) &lt;&lt; (p + 1 - n)))</code> to represent our
+        bitmask and the statement
+        <code>x & ~(~(~0 &lt;&lt; n) &lt;&lt; (p + 1 - n)))</code> to set the
+        necessary bits to zeros.
+      </p>
+      <p>
+        Next, we have to move the four bits in <var>y</var> to the correct
+        location and use the OR operator to combine the two sets of bits:
+        <code>10000010<sub>binary</sub> | 00010100<sub>binary</sub></code>.
+        Again, let us see how we can achieve this step-by-step using the
+        bitwise operations. First, we need to filter the last <var>n</var> bits
+        of <var>y</var> using the bitmask 00001111. To create the mask in terms
+        of <var>n</var>, we shift <code>~0</code> (11111111<sub>binary</sub>)
+        <var>n</var> bits to the left (11110000) and then invert the bits
+        (00001111.) We then use the AND operator to filter the last
+        <var>n</var> bits from <var>y</var> (00000101). This results in the
+        code <code>y & ~(~0 &lt;&lt; n)</code>. Finally, we shift the bits
+        <code>p + 1 - n</code> bits to the left (00010100) and use the OR
+        operator with the two sets of bits.
+      </p>
+
+      <pre><code>    /* setbits:  return x with rightmost n bits from y starting from p */
+    unsigned setbits(unsigned x, int p, int n, unsigned y)
+    {
+        return (x & ~(~(~0U &lt;&lt; n) &lt;&lt; (p+1-n))) | ((y & ~(~0U &lt;&lt; n)) &lt;&lt; (p+1-n));
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> in the example we used to understand how to code our
+        function, we assumed we were computing on a single byte (eight bits);
+        however, in the actual function we use <code>unsigned int</code>, so
+        the function works on what is most likely a 32-bit string (this does
+        depend on the implementation.)
+      </p>
+      <p>
+        <b>Note:</b> using <code>unsigned int</code> means that the numbers
+        used actually represent the bit strings (in two's complement machines,
+        the place value of the leftmost bit is -128 for
+        <code>signed int</code>s.)
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_05.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

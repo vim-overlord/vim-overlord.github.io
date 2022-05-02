@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 2-10</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_09.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_2/exercise_10.c"
+          >Exercise 2-10</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Rewrite the function <code>lower</code>, which converts upper case
+          letters to lower case, with a conditional expression instead of
+          <code>if</code>-<code>else</code>.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      Noting that
+
+      <pre><code>    if (condition)
+        do x;
+    else
+        do y;</code></pre>
+
+      looks like <code>(condition) ? do x : do y;</code> when written using a
+      conditional expression, <code>lower</code> reads as follows:
+
+      <pre><code>    /* lower:  convert c to lower case; ASCII only */
+    int lower(int c)
+    {
+        <del>if (c &gt;= 'A' && c &lt;= 'Z')</del>
+            <del>return c + 'a' - 'A';</del>
+        <del>else</del>
+            <del>return c;</del>
+        <ins>return (c &gt;= 'A' && c &lt;= 'Z') ? c + 'a' - 'A' : c;</ins>
+    }</code></pre>
+
+      <p>
+        The syntax may seem cryptic, especially if this is your first time
+        seeing it, so try using conditional expressions in previous exercises
+        where possible in order to become more comfortable with them.
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_09.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

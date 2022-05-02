@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 2-9</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_08.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_2/exercise_09.c"
+          >Exercise 2-9</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          In a two's complement number system, <code>x &= (x-1)</code> deletes
+          the rightmost 1-bit in <var>x</var>. Explain why. Use this
+          observation to write a faster version of <code>bitcount</code>.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        First of all, we realize that <code>x &= (x-1)</code> is analogous to
+        <code>x = x & (x-1)</code>. Let us try plugging in some examples. If
+        <var>x</var> is equal to 1111<sub>binary</sub>, the expression becomes
+        <code>1111<sub>binary</sub> & 1110<sub>binary</sub></code>, which
+        deletes the rightmost bit. If <var>x</var> is equal to
+        1110<sub>binary</sub>, the expression becomes
+        <code>1110<sub>binary</sub> & 1101<sub>binary</sub></code>, which
+        results in 1100<sub>binary</sub>. If <var>x</var> is equal to
+        1000<sub>binary</sub>, the expression becomes
+        <code>1000<sub>binary</sub> & 0111<sub>binary</sub></code> which
+        results in 0000<sub>binary</sub>. From this, we notice a pattern: when
+        we subtract one, the rightmost 1-bit changes to a zero, and any
+        subsequent bits change to ones. When the AND operator is used on the
+        two strings, the result is <var>x</var> with its rightmost 1-bit
+        changed to a zero. Note that this only works when <var>x</var>
+        is positive.
+      </p>
+      <p>
+        Using this information, we can implement a more elegant version of
+        <code>bitcount</code> by deleting the rightmost 1-bit every iteration
+        instead and running the loop until <var>x</var> equals zero.
+      </p>
+
+      <pre><code>    /* bitcount:  count 1 bits in x */
+    int bitcount(unsigned x)
+    {
+        int b;
+    
+        <del>for (b = 0; x != 0; x &gt;&gt;= 1)</del>
+        <ins>for (b = 0; x != 0; x &= (x-1))</ins>
+            <del>if (x & 01)</del>
+            b++;
+        return b;
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_08.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

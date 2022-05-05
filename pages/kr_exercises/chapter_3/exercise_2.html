@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 3-2</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_1.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_3/exercise_2.c"
+          >Exercise 3-2</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a function <code>escape(s,t)</code> that converts characters
+          like newline and tab into visible escape sequences like
+          <code>\n</code> and <code>\t</code> as it copies the string
+          <var>t</var> to <var>s</var>. Use a <code>switch</code>. Write a
+          function for the other direction as well, converting escape sequences
+          into the real characters.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        When we iterate through <var>s</var>, we create two indexes. The first
+        refers to the position of the current character we are on in
+        <var>s</var>, and the second will be the next free position in
+        <var>t</var>. During every iteration, we enter a
+        <code>switch</code>-statement. Normally, we simply copy the character,
+        but in case the character happens to be a newline or tab, we append the
+        two characters in their escape sequences. When this happens,
+        <var>t</var>'s index will increment twice.
+      </p>
+
+      <pre><code>    /* escape:  copy string t to s and make escape sequences visible */
+    void escape(char s[], char t[])
+    {
+        int i, j;
+    
+        for (i = j = 0; t[i] != '\0'; ++i) {
+            switch (t[i]) {
+            case '\n':
+                s[j++] = '\\';
+                s[j] = 'n';
+                break;
+            case '\t':
+                s[j++] = '\\';
+                s[j] = 't';
+                break;
+            default:
+                s[j] = t[i];
+                break;
+            }
+            ++j;
+        }
+        s[j] = '\0';
+    }</code></pre>
+
+      <p>
+        The <code>unescape</code> function works in a similar vein. We once
+        again use a <code>switch</code>-statement, and copy the character by
+        default. When we come across a backslash, we enter another
+        <code>switch</code>-statement that checks the next character. If it
+        happens to be <var>n</var> or <var>t</var>, we copy a newline or tab
+        character; otherwise, we copy the backslash and the next character.
+      </p>
+
+      <pre><code>    /* unescape:  copy string t to s and make visible escape sequences invisible */
+    void unescape(char s[], char t[])
+    {
+        int i, j;
+    
+        for (i = j = 0; t[i] != '\0'; ++i) {
+            switch (t[i]) {
+            case '\\':
+                switch (t[++i]) {
+                case 'n':
+                    s[j] = '\n';
+                    break;
+                case 't':
+                    s[j] = '\t';
+                    break;
+                default:
+                    s[j++] = '\\';
+                    s[j] = t[i];
+                    break;
+                }
+                break;
+            default:
+                s[j] = t[i];
+                break;
+            }
+            ++j;
+        }
+        s[j] = '\0';
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_1.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

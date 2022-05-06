@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 3-4</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="./exercise_3.html">prev</a>
+            <a href="../about.html">top</a>
+        </nav>
+        <hr>
+        <h1><a href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_3/exercise_4.c">Exercise 3-4</a></h1>
+        <blockquote>
+        <i>
+            In a two's complement number representation, our version of
+            <code>itoa</code> does not handle the largest negative number, that is,
+            the value of <var>n</var> equal to -(2<sup>wordsize-1</sup>). Explain
+            why not. Modify it to print that value correctly, regardless of the
+            machine on which it runs.
+        </i>
+        </blockquote>
+    </header>
+    <main>
+    <p>
+        In a two's complement machine, the largest negative value is one more
+        than the largest positive value because the leftmost place value is
+        <code>-2<sup>n</sup></code>, while the remaining <code>n - 1</code>
+        bits dedicated for positive values can represent up to
+        <code>2<sup>n</sup> - 1</code> (e.g. 10000000<sub>binary</sub> is one
+        more than 01111111<sub>binary</sub>.) In <code>itoa</code>, when
+        <var>n</var> is a negative number, we assign <code>-n</code> to
+        <var>n</var> which is why the code does not work with the largest
+        negative number.
+    </p>
+    <p>
+        To fix this, we can instead set <var>sign</var> to -1 or 1 depending
+        on the value of <var>n</var> whilst leaving <var>n</var> unchanged.
+        Then, when we calculate the digits of <var>n</var>, we also multiply
+        them by <var>sign</var>. That way, if <var>n</var> is negative,
+        multiplying each digit by <var>sign</var> will cancel out the minus.
+        If <var>n</var> is nonnegative, multiplying by <var>sign</var> will
+        have no effect since <var>sign</var> will be equal to one.
+    </p>
+
+    <pre><code>    /* itoa:  convert n to characters in s */
+    void itoa(int n, char s[])
+    {
+        int i, sign;
+    
+        <del>if ((sign = n) &lt; 0)  /* record sign */</del>
+            <del>n = -n;          /* make n positive */</del>
+        <ins>sign = (n &gt;= 0) ? 1 : -1;</ins>
+        i = 0;
+        do {       /* generate digits in reverse order */
+            s[i++] = n % 10 <ins>* sign</ins> + '0';   /* get next digit */
+        } while ((n /= 10) &gt; 0);     /* delete it */
+        <del>if (sign &lt; 0)</del>
+        <ins>if (sign == -1)</ins>
+            s[i++] = '-';
+        s[i] = '\0';
+        reverse(s);
+    }</code></pre>
+    </main>
+    <footer>
+        <hr>
+        <nav>
+            <a href="./exercise_3.html">prev</a>
+            <a href="../about.html">top</a>
+        </nav>
+    </footer>
+</body>
+</html>

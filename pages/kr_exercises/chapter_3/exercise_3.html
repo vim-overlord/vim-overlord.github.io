@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 3-3</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_2.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_3/exercise_3.c"
+          >Exercise 3-3</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a function <code>expand(s1,s2)</code> that expands shorthand
+          notations like <kbd>a-z</kbd> in the string <var>s1</var> into the
+          equivalent complete list <samp>abc...xyz</samp> in <var>s2</var>.
+          Allow for letters of either case and digits, and be prepared to
+          handle cases like <kbd>a-b-c</kbd> and <kbd>a-z0-9</kbd> and
+          <kbd>-a-z</kbd>. Arrange that a leading or trailing <kbd>-</kbd> is
+          taken literally.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        We start with the code below to copy one string to another. In
+        anticipation of the fact that the indexes of <var>s1</var> and
+        <var>s2</var> will diverge, we create separate indexes for each of
+        them. We also start with a <code>while</code>-loop because we will be
+        modifying the indexes many times within the loop. If we used a
+        <code>for</code>-loop instead, our code would be hard to follow.
+      </p>
+
+      <pre><code>    /* expand:  expand short hand notations in s1 into the equivalent list in s2 */
+    void expand(char s1[], char s2[])
+    {
+        int i, j;
+    
+        i = j = 0;
+        while (s1[i] != '\0')
+            s2[j++] = s1[i++];
+        s2[j] = '\0';
+    }</code></pre>
+
+      <p>
+        A shorthand notation is of the format
+        <kbd><var>a</var>-<var>b</var></kbd> and the following conditions must
+        be met in order for it to be valid:
+      </p>
+      <ol>
+        <li>
+          <var>a</var> and <var>b</var> must both be letters (upper or
+          lowercase) or digits
+        </li>
+        <li><var>a</var> must come before <var>b</var></li>
+      </ol>
+      <p>
+        If <code>s1[i]</code> represents <var>a</var>, the following condition
+        will be true when a notation is found:
+      </p>
+      <code>
+        s1[i+1] == '-' && (islower(s1[i]) && islower(s1[i+2]) || isupper(s1[i])
+        && isupper(s1[i+2]) || isdigit(s1[i]) && isdigit(s1[i+2])) && s1[i]
+        &lt; s1[i+2]
+      </code>
+      <p>
+        When we come across a valid shorthand notation, we assign the value of
+        <code>s1[i]</code> to the variable <var>c</var>, whose value will be
+        repeatedly incremented and appended to <var>s2</var> until it reaches
+        <code>s1[i+2]</code>, at which point <var>i</var> will be incremented
+        by three so that the rest of the shorthand notation is skipped. Because
+        our code reads notations all at once, leading and trailing dashes will
+        cause no issues.
+      </p>
+
+      <pre><code>    /* expand:  expand short hand notations in s1 into the equivalent list in s2 */
+    void expand(char s1[], char s2[])
+    {
+        int <ins>c, </ins>i, j;
+    
+        i = j = 0;
+        while (s1[i] != '\0') {
+            <ins>if (s1[i+1] == '-' && (islower(s1[i]) && islower(s1[i+2]) ||</ins>
+                <ins>isupper(s1[i]) && isupper(s1[i+2]) || isdigit(s1[i]) &&</ins>
+                <ins>isdigit(s1[i+2])) && s1[i] &lt; s1[i+2]) {</ins>
+                <ins>c = s1[i];</ins>
+                <ins>while (c &lt;= s1[i+2]) {</ins>
+                    <ins>s2[j++] = c;</ins>
+                    <ins>++c;</ins>
+                <ins>}</ins>
+                <ins>i += 3;</ins>
+            <ins>} else</ins>
+                s2[j++] = s1[i++];
+        }
+        s2[j] = '\0';
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_2.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

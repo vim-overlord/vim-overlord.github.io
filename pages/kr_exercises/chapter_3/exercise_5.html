@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 3-5</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_4.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_3/exercise_5.c"
+          >Exercise 3-5</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write the function <code>itob(n,s,b)</code> that converts the integer
+          <var>n</var> into a base <var>b</var> character representation in the
+          string <var>s</var>. In particular, <code>itob(n,s,16)</code> formats
+          <var>n</var> as a hexadecimal integer in <var>s</var>.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        We can start with <code>itoa</code> from
+        <a href="./exercise_4.html">Exercise 3-4</a> as a template.
+      </p>
+
+      <pre><code>    /* itoa:  convert n to characters in s */
+    void itoa(int n, char s[])
+    {
+        int i, sign;
+    
+        sign = (n &gt;= 0) ? 1 : -1;
+        i = 0;
+        do {    /* generate digits in reverse order */
+            s[i++] = n % 10 * sign + '0';   /* get next digit */
+        } while (sign * (n /= 10) &gt; 0);     /* delete it */
+        if (sign == -1)
+            s[i++] = '-';
+        s[i] = '\0';
+        reverse(s);
+    }</code></pre>
+
+      <p>
+        Instead of performing mod 10 to get the next digit, we must instead
+        perform mod <var>b</var> because in a base-<var>b</var> representation,
+        each place value is a power of <var>b</var> rather than a power of ten.
+        If the value of the digit exceeds 9, we can instead append
+        <code>digit - 10 + 'A'</code>. This means the digit ten will be equal
+        to <code>'A'</code>, the digit eleven will be equal to
+        <code>'B'</code>, and so on.
+      </p>
+
+      <pre><code>    <del>/* itoa:  convert n to characters in s */</del>
+    <del>void itoa(int n, char s[])</del>
+    <ins>/* itob:  convert integer n into base b representation in string s */</ins>
+    <ins>void itob(int n, char s[], int b)</ins>
+    {
+        int i, sign<ins>, digit</ins>;
+    
+        sign = (n &gt;= 0) ? 1 : -1;
+        i = 0;
+        do {    /* generate digits in reverse order */
+            <ins>digit = n % b * sign;</ins>
+            <del>s[i++] = n % 10 * sign + '0';   /* get next digit */</del>
+            <ins>/* use letters to depict digits greater than 9 */</ins>
+            <ins>s[i++] = (digit &lt; 10) ? digit + '0' : digit - 10 + 'A';</ins>
+        } while (sign * (n /= b) > 0);
+        if (sign == -1)
+            s[i++] = '-';
+        s[i] = '\0';
+        reverse(s);
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_4.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

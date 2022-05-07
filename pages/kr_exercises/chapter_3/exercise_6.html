@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 3-6</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_5.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_3/exercise_6.c"
+          >Exercise 3-6</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a version of <code>itoa</code> that accepts three arguments
+          instead of two. The third argument is a minimum field width; the
+          converted number must be padded with blanks on the left if necessary
+          to make it wide enough.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        Adding on to <code>itoa</code> from
+        <a href="./exercise_4.html">Exercise 3-4</a>, once we finish appending
+        characters to our string, while <var>i</var> (which is equal to the
+        length of the string minus one) is less than the minimum field width
+        provided, we repeatedly add whitespace and increment <var>i</var>
+        until the condition is no longer satisfied. Note that we are appending
+        blanks to the end of the string, so when it is reversed, they will be
+        on the left.
+      </p>
+
+      <pre><code>    /* itoa:  convert n to characters in s */
+    void itoa(int n, char s[]<del>, int min</del>)
+    {
+        int i, sign;
+    
+        sign = (n &gt;= 0) ? 1 : -1;
+        i = 0;
+        do {       /* generate digits in reverse order */
+            s[i++] = n % 10 * sign + '0';   /* get next digit */
+        } while (sign * (n /= 10) > 0);     /* delete it */
+        if (sign == -1)
+            s[i++] = '-';
+        <ins>for (; i &lt; min; ++i)</ins>
+            <ins>s[i] = ' ';</ins>
+        s[i] = '\0';
+        reverse(s);
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_5.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

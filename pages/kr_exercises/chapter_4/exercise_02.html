@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 4-2</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_01.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_4/exercise_02.c"
+          >Exercise 4-2</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Extend <code>atof</code> to handle scientific notation of the form
+          <kbd>123.45e-6</kbd> where a floating-point number may be followed by
+          <kbd>e</kbd> or <kbd>E</kbd> and an optionally signed exponent.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        After all the digits have been read in, we check if the number is
+        followed by an <kbd>e</kbd> (upper or lowercase.) If so, we first store
+        the sign of the exponent in <var>exp_sign</var> (we can safely assume
+        the exponent is positive if there is no sign) and read in the digits
+        into the integer <var>exp</var>. This is done in the same way as
+        earlier in <code>atof</code>. Finally, we multiply <var>exp</var> by
+        <var>exp_sign</var> to get the signed value of the exponent.
+      </p>
+
+      <pre><code>    /* atof:  convert string s to double */
+    double atof(char s[])
+    {
+        double val, power;
+        int i, sign, exp, exp_sign;
+    
+        for (i = 0; isspace(s[i]); i++)  /* skip white space */
+            ;
+        sign = (s[i] == '-') ? -1 : 1;
+        if (s[i] == '+' || s[i] == '-')
+            i++;
+        for (val = 0.0; isdigit(s[i]); i++)
+            val = 10.0 * val + (s[i] - '0');
+        if (s[i] == '.')
+            i++;
+        for (power = 1.0; isdigit(s[i]); i++) {
+            val = 10.0 * val + (s[i] - '0');
+            power *= 10.0;
+        }
+        <ins>if (tolower(s[i]) == 'e') {</ins>
+            <ins>++i;</ins>
+            <ins>exp_sign = (s[i] == '-') ? -1 : 1;</ins>
+            <ins>if (s[i] == '+' || s[i] == '-')</ins>
+                <ins>++i;</ins>
+            <ins>for (exp = 0; isdigit(s[i]); ++i)</ins>
+                <ins>exp = 10 * exp + (s[i] - '0');</ins>
+            <ins>exp *= exp_sign;</ins>
+        <ins>}</ins>
+        return sign * val / power;
+    }</code></pre>
+
+      <p>
+        Now that we have the value of the exponent, we can modify the value of
+        <var>power</var>. There are two scenarios: if <var>exp</var> is
+        positive, we multiply <var>power</var> by 10 <var>exp</var> times. On
+        the other hand, if <var>exp</var> is negative, we divide
+        <var>power</var> by 10 |<var>exp</var>| times.
+      </p>
+
+      <pre><code>    /* atof:  convert string s to double */
+    double atof(char s[])
+    {
+        double val, power;
+        int i, sign, exp, exp_sign;
+    
+        for (i = 0; isspace(s[i]); i++)  /* skip white space */
+            ;
+        sign = (s[i] == '-') ? -1 : 1;
+        if (s[i] == '+' || s[i] == '-')
+            i++;
+        for (val = 0.0; isdigit(s[i]); i++)
+            val = 10.0 * val + (s[i] - '0');
+        if (s[i] == '.')
+            i++;
+        for (power = 1.0; isdigit(s[i]); i++) {
+            val = 10.0 * val + (s[i] - '0');
+            power *= 10.0;
+        }
+        if (tolower(s[i]) == 'e') {
+            ++i;
+            exp_sign = (s[i] == '-') ? -1 : 1;
+            if (s[i] == '+' || s[i] == '-')
+                ++i;
+            for (exp = 0; isdigit(s[i]); ++i)
+                exp = 10 * exp + (s[i] - '0');
+            exp *= exp_sign;
+            <ins>for (; exp &lt; 0; ++exp)</ins>
+                <ins>power *= 10.0;</ins>
+            <ins>for (; exp &gt; 0; --exp)</ins>
+                <ins>power /= 10.0;</ins>
+        }
+        return sign * val / power;
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_01.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

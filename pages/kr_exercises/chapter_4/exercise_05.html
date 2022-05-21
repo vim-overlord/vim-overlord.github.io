@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 4-5</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_04.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_4/exercise_05.c"
+          >Exercise 4-5</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Add access to library functions like <code>sin</code>,
+          <code>exp</code>, and <code>pow</code>. See
+          <code>&lt;math.h&gt;</code> in Appendix B, Section 4.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        We first need to find a way to create commands for the various
+        functions. We could use a single character like before, but it would be
+        more convenient for the user to type in the word itself like
+        <kbd>sin</kbd> or <kbd>pow</kbd>. To do this, we first create a new
+        function called <code>lookfor</code>, which takes in a string and
+        returns <code>1</code> if it is found on the input stream. We can look
+        for the string by using a loop that continues to read in the next
+        character until the input no longer matches the string or if the string
+        is found. If the string was not found, the function will execute
+        <code>ungetch</code> for any characters it had read in, and return
+        <code>0</code>.
+      </p>
+
+      <pre><code>    ...
+    /* lookfor:  return 1 if specified string is found */
+    int lookfor(char s[])
+    {
+        int i, j;
+        char temp[MAXOP];
+    
+        for (i = 0; s[i] != '\0' && (temp[i] = getch()) == s[i]; ++i)
+            ;
+        if (s[i] == '\0')   /* string was found */
+            return 1;
+        else {    /* unget read characters and return 0 */
+            for (j = 0; j &lt;= i; ++j)
+                ungetch(temp[j]);
+            return 0;
+        }
+    }</code></pre>
+
+      <p>
+        Now inside <code>getop</code>, when the character we come across is not
+        the start of a number, instead of directly returning it, we enter a
+        <code>switch</code>, where we see if a function name is found. For
+        example, one of the cases inside the <code>switch</code> is
+        <code>'s'</code>; when it occurs, we call <code>lookfor("in")</code>
+        (altogether, we would be looking for <kbd>sin</kbd>.) If the string is
+        found, we return a <code>SIN</code> token; otherwise, we simply return
+        <code>'s'</code>.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    #include &lt;stdlib.h&gt; /* for atof() */
+    #include &lt;ctype.h&gt;
+    
+    #define MAXOP   100 /* max size of operand or operator */
+    #define NUMBER  '0' /* signal that a number was found */
+    <ins>#define SIN     'S' /* signal that a sin function was found */</ins>
+    <ins>#define EXP     'E' /* signal that a exp function was found */</ins>
+    <ins>#define POW     'P' /* signal that a pow function was found */</ins>
+    #define MAXVAL  100 /* maximum depth of val stack */
+    #define BUFSIZE 100
+    ...
+    /* getop:  get next operator or numeric operand */
+    int getop(char s[])
+    {
+        int i, c;
+    
+        while ((s[0] = c = getch()) == ' ' || c == '\t')
+            ;
+        s[1] = '\0';
+        if (!isdigit(c) && c != '.' && c != '+' && c != '-') {
+            <ins>switch (tolower(c)) {</ins>
+                <ins>case 's':</ins>
+                    <ins>return (lookfor("in")) ? SIN : c;</ins>
+                <ins>case 'e':</ins>
+                    <ins>return (lookfor("xp")) ? EXP : c;</ins>
+                <ins>case 'p':</ins>
+                    <ins>return (lookfor("ow")) ? POW : c;</ins>
+                <ins>default:</ins>
+                    return c;   /* not a number */
+            <ins>}</ins>
+        }
+    </code></pre>
+
+      <p>
+        Finally, we need to add the cases for each of our tokens inside of
+        <code>main</code>. The functions themselves come from
+        <code>&lt;math.h&gt;</code>. <code>sin</code> and <code>exp</code> need
+        one input, and <code>pow</code> requires two.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    #include &lt;stdlib.h&gt; /* for atof() */
+    #include &lt;ctype.h&gt;
+    <ins>#include &lt;math.h&gt;</ins>
+    ...
+    /* reverse Polish calculator */
+    main()
+    {
+        int type;
+        double op1, op2;
+        char s[MAXOP];
+    
+        while ((type = getop(s)) != EOF) {
+            switch (type) {
+            ...
+            <ins>case SIN:</ins>
+                <ins>push(sin(pop()));</ins>
+                <ins>break;</ins>
+            <ins>case EXP:</ins>
+                <ins>push(exp(pop()));</ins>
+                <ins>break;</ins>
+            <ins>case POW:</ins>
+                <ins>op2 = pop();</ins>
+                <ins>push(pow(pop(), op2));</ins>
+                <ins>break;</ins>
+            case 'p':
+                print_val();
+                break;
+            case 'd':
+                duplicate();
+                break;
+            case 's':
+                swap();
+                break;
+            case 'c':
+                clear();
+                break;
+            case '\n':
+                if (sp == 1)
+                    printf("\t%.8g\n", pop());
+                break;
+            default:
+                printf("error: unknown command %s\n", s);
+                break;
+            }
+        }
+        return 0;
+    }
+    ...</code></pre>
+
+      <p>
+        <b>Note:</b> if you are using <code>gcc</code>, in order to compile
+        code that uses the math header, you will need to use <code>gcc</code>'s
+        <code>-lm</code> option (e.g. <kbd>gcc -lm /path/to/file.c</kbd>.)
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_04.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

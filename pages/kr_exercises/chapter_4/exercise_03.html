@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 4-3</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_02.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_4/exercise_03.c"
+          >Exercise 4-3</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Given the basic framework, it's straightforward to extend the
+          calculator. Add the modulus (<code>%</code>) operator and provisions
+          for negative numbers.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        This exercise is the start of a series of exercises that revolve around
+        modifying the calculator program, so for these next few exercises, we
+        will use the code from the previous exercise as a starting point to add
+        functionality to.
+      </p>
+      <p>
+        Currently, when <code>getop</code> comes across anything other than a
+        digit or a decimal point, it returns from the function. The first thing
+        we need to do is make sure that the function does not return
+        immediately for <code>+</code> or <code>-</code> either. Then, at the
+        end of <code>getop</code>, if <var>i</var> is equal to one, which
+        happens if there were no digits afterward, then we know that the
+        operator itself was intended and so we return it instead. Note that
+        <code>atof</code> will automatically deal with the leading
+        <code>+</code> or <code>-</code>.
+      </p>
+
+      <pre><code>    ...
+    /* getop:  get next operator or numeric operand */
+    int getop(char s[])
+    {
+        int i, c;
+    
+        while ((s[0] = c = getch()) == ' ' || c == '\t')
+            ;
+        s[1] = '\0';
+        if (!isdigit(c) && c != '.' <ins>&& c != '+' && c != '-'</ins>)
+            return c;   /* not a number */
+        i = 0;
+        if (isdigit(c) <ins>|| c == '+' || c == '-'</ins>) /* collect integer part */
+            while (isdigit(s[++i] = c = getch()))
+                ;
+        if (c == '.')   /* collect fraction part */
+            while (isdigit(s[++i] = c = getch()))
+                ;
+        s[i] = '\0';
+        if (c != EOF)
+            ungetch(c);
+        <ins>if ((s[0] == '+' || s[0] == '-') && i == 1)</ins>
+            <ins>return s[0];    /* return operator if no digits afterwards */</ins>
+        return NUMBER;
+    }
+    ...</code></pre>
+
+      <p>
+        For the modulo operation, one might think that we could use the
+        standard <code>%</code> operator, but that would be forgetting one
+        thing: <code>%</code> does not work on floating-point values. One
+        solution would be to use <code>fmod</code> from
+        <code>&lt;math.h&gt;</code>, but seeing as the function is fairly easy
+        to implement, let us try doing it ourselves. All we need to do is to
+        repeatedly subtract the second operator from the first until
+        subtracting would mean the first operator would be less than zero. For
+        this, we will also need to <code>pop</code> the first operator and
+        store it into <var>op1</var>. Finally, similar to division, we need to
+        make sure that <var>op2</var> is not equal to zero.
+      </p>
+
+      <pre><code>    ...
+    /* reverse Polish calculator */
+    main()
+    {
+        int type;
+        double <ins>op1, </ins>op2;
+        char s[MAXOP];
+    
+        while ((type = getop(s)) != EOF) {
+            switch (type) {
+            case NUMBER:
+                push(atof(s));
+                break;
+            case '+':
+                push(pop() + pop());
+                break;
+            case '*':
+                push(pop() * pop());
+                break;
+            case '-':
+                op2 = pop();
+                push(pop() - op2);
+                break;
+            case '/':
+                op2 = pop();
+                if (op2 != 0.0)
+                    push(pop() / op2);
+                else
+                    printf("error: zero divisor\n");
+                break;
+            <ins>case '%':</ins>
+                <ins>op2 = pop();</ins>
+                <ins>if (op2 != 0.0) {</ins>
+                    <ins>for (op1 = pop(); op1 &gt;= op2; op1 -= op2)</ins>
+                        <ins>;</ins>
+                    <ins>push(op1);</ins>
+                <ins>} else</ins>
+                    <ins>printf("error: zero divisor\n");</ins>
+                <ins>break;</ins>
+            case '\n':
+                printf("\t%.8g\n", pop());
+                break;
+            default:
+                printf("error: unknown command %s\n", s);
+                break;
+            }
+        }
+        return 0;
+    }
+    ...</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_02.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 4-4</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_03.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_4/exercise_04.c"
+          >Exercise 4-4</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Add commands to print the top element of the stack without popping,
+          to duplicate it, and to swap the top two elements. Add a command to
+          clear the stack.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        First, let us lay the framework for implementing our commands. We can
+        create functions for each command, and add cases for them by using
+        letters. In addition, to make it easier to work with our stack
+        operations, we will make it so that a newline only <code>pop</code>s
+        the top element if there is only one element in the stack. So for
+        example, the input <kbd>1 1 1</kbd> would not cause any elements to be
+        <code>pop</code>ped. This will not interfere with our existing
+        operations since they <code>pop</code> out elements regardless of
+        whether a newline is entered.
+      </p>
+
+      <pre><code>    ...
+    int getop(char []);
+    void push(double);
+    double pop(void);
+    <ins>void print_val(void);</ins>
+    <ins>void duplicate(void);</ins>
+    <ins>void swap(void);</ins>
+    <ins>void clear(void);</ins>
+    int getch(void);
+    void ungetch(int);
+    ...
+    /* reverse Polish calculator */
+    main()
+    {
+        int type;
+        double op1, op2;
+        char s[MAXOP];
+    
+        while ((type = getop(s)) != EOF) {
+            switch (type) {
+            ...
+            <ins>case 'p':</ins>
+                <ins>print_val();</ins>
+                <ins>break;</ins>
+            <ins>case 'd':</ins>
+                <ins>duplicate();</ins>
+                <ins>break;</ins>
+            <ins>case 's':</ins>
+                <ins>swap();</ins>
+                <ins>break;</ins>
+            <ins>case 'c':</ins>
+                <ins>clear();</ins>
+                <ins>break;</ins>
+            case '\n':
+                <ins>if (sp == 1)</ins>
+                    printf("\t%.8g\n", pop());
+                break;
+            default:
+                printf("error: unknown command %s\n", s);
+                break;
+            }
+        }
+        return 0;
+    }
+    ...</code></pre>
+
+      <p>
+        Let us first tackle <code>print_val</code>, which will print the top
+        element of the stack. We make sure that the stack is not empty (by
+        checking if <var>sp</var> is greater than zero), before printing
+        <code>val[sp - 1]</code>, which corresponds to the top element since
+        <var>sp</var> is the next free position in the stack. In case the stack
+        is empty, we print an error message.
+      </p>
+
+      <pre><code>    /* print_val:  print top element of value stack */
+    void print_val(void)
+    {
+        if (sp &gt; 0)
+            printf("\t%.8g\n", val[sp - 1]);
+        else
+            printf("error: stack empty\n");
+    }</code></pre>
+
+      <p>
+        In order to <code>duplicate</code> the top element, we first make sure
+        that the stack is neither empty nor full. Afterward, we
+        <code>pop</code> the top element of the stack and <code>push</code> it
+        twice.
+      </p>
+
+      <pre><code>    /* duplicate:  duplicate top element of value stack */
+    void duplicate(void)
+    {
+        if (sp &gt; MAXVAL - 1) {
+            printf("error: stack full, can't duplicate\n");
+            return;
+        } else if (sp &lt;= 0) {
+            printf("error: stack empty\n");
+            return;
+        }
+        double temp = pop();
+    
+        push(temp);
+        push(temp);
+    }</code></pre>
+
+      <p>
+        Next, let us look at implementing the <code>swap</code> command. We
+        first need to ensure that there are at least two elements in the stack.
+        If the condition is satisfied, we <code>pop</code> the top two elements
+        of the stack, and <code>push</code> them in reverse order.
+      </p>
+
+      <pre><code>    /* swap:  swap top two elements of value stack */
+    void swap(void)
+    {
+        if (sp &lt;= 1) {
+            printf("swap: stack doesn't contain 2 elements\n");
+            return;
+        }
+        double num_1 = pop();
+        double num_2 = pop();
+    
+        push(num_1);
+        push(num_2);
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> remember, stacks work by the last in, first out rule. A
+        good way to visualize this is a stack of sheets. In order to swap the
+        top two sheets, we take out sheet one and sheet two, before putting
+        back sheet one first and then sheet two.
+      </p>
+      <p>
+        Finally, the clear function is by far the easiest. We do not need to
+        actually clear the elements; instead, we set <var>sp</var> to zero,
+        which means new elements that are <code>push</code>ed will simply
+        override the existing values.
+      </p>
+
+      <pre><code>    /* clear:  clear value stack */
+    void clear(void)
+    {
+        sp = 0;
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_03.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

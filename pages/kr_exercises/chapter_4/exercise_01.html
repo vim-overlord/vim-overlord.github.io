@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 4-1</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="../chapter_3/exercise_6.html">prev</a>
+        <a href="./exercise_02.html">next</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_4/exercise_01.c"
+          >Exercise 4-1</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write the function <code>strrindex(s,t)</code>, which returns the
+          position of the <em>rightmost</em> occurrence of <var>t</var> in
+          <var>s</var>, or <samp>-1</samp> if there is none.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>We can start by basing our function off of <code>strindex</code>.</p>
+
+      <pre><code>    /* strindex:  return index of t in s, -1 if none */
+    int strindex(char s[], char t[])
+    {
+        int i, j, k;
+    
+        for (i = 0; s[i] != '\0'; i++) {
+            for (j=i, k=0; t[k]!='\0' && s[j]==t[k]; j++, k++)
+                ;
+            if (k &gt; 0 && t[k] == '\0')
+                return i;
+        }
+        return -1;
+    }</code></pre>
+
+      <p>
+        In <code>strindex</code>, <var>i</var> starts as zero and increments if
+        <var>t</var> is not found starting from <var>i</var>, which means it
+        returns the leftmost occurence. In order to return the rightmost, we
+        need to set <var>i</var> to equal the index of the last character of
+        <var>s</var>, and decrement it after every iteration. Additionally, we
+        need to make sure that we also exit the loop if
+        <code>s[j] == '\0'</code> since that is now also a possible occurrence
+        as <var>i</var> starts off as the length instead.
+      </p>
+
+      <pre><code>    <del>/* strindex:  return index of t in s, -1 if none */</del>
+    <del>int strindex(char s[], char t[])</del>
+    <ins>/* strrindex:  return rightmost index of t in s, -1 if none */</ins>
+    <ins>int strrindex(char s[], char t[])</ins>
+    {
+        int i, j, k;
+
+        for (i = 0; s[i] != '\0'; ++i)
+            <ins>;</ins>
+        <ins>while (--i &gt;= 0) {</ins>
+            for (j=i, k=0; <ins>s[j]!='\0' && </ins>t[k]!='\0' && s[j]==t[k]; j++, k++)
+                ;
+            if (k &gt; 0 && t[k] == '\0')
+                return i;
+        }
+        return -1;
+    }</code></pre>
+
+      <p>
+        <b>Note:</b> inside the <code>while</code>-loop, the prefix decrement
+        operator is used because initially, <var>i</var> is equal to the index
+        of <code>\0</code> in <var>s</var>.
+      </p>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="../chapter_3/exercise_6.html">prev</a>
+        <a href="./exercise_02.html">next</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

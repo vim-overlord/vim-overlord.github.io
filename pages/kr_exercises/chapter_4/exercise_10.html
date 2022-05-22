@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 4-10</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_09.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_4/exercise_10.c"
+          >Exercise 4-10</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          An alternate organization uses <code>getline</code> to read an entire
+          input line; this makes <code>getch</code> and <code>ungetch</code>
+          unnecessary. Revise the calculator to use this approach.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        For this exercise, we will start from the code in
+        <a href="./exercise_06.html">exercise 4-6</a>, as using
+        <code>getline</code> would render additions made in following exercises
+        irrelevant.
+      </p>
+      <p>
+        Seeing as switching to <code>getline</code> is a major change, let us
+        first identify what can be removed from our program. We obviously no
+        longer need <code>getch</code> and <code>ungetch</code>, but this also
+        means we can remove <var>buf</var> and the variables associated with
+        it.
+      </p>
+      <p>
+        If we look at our program currently, we notice that <code>getch</code>
+        and <code>ungetch</code> are almost exclusively used in
+        <code>getop</code>, so in theory, if we can adapt <code>getop</code> to
+        use <code>getline</code> and make sure we execute <code>getline</code>
+        in <code>main</code> some way, we should not need to make any more
+        changes. Let us tackle the latter first. We start by introducing the
+        global variable <var>line</var> to store the current input line. We
+        also create the global index <var>lp</var> to keep track of which
+        position on line we are currently on. Then, in <code>main</code>, we
+        nest the <code>while</code>-loop already present inside another
+        <code>while</code>-loop that executes <code>getline</code> until
+        <code>EOF</code> is reached. This means we also need to change the
+        condition of the inner <code>while</code>-loop to execute
+        <code>getop</code> until a newline is reached and move the newline case
+        in the <code>switch</code> statement to after the loop so that it gets
+        executed after the inner <code>while</code>-loop terminates. Finally,
+        before <code>getline</code> is called again, we reset <var>lp</var> to
+        zero.
+      </p>
+
+      <pre><code>    #include &lt;stdio.h&gt;
+    #include &lt;stdlib.h&gt; /* for atof() */
+    #include &lt;ctype.h>
+    #include &lt;math.h&gt;
+    
+    #define MAXOP   100     /* max size of operand or operator */
+    #define NUMBER  '0'     /* signal that a number was found */
+    #define VAR     'A'     /* signal that a variable was found */
+    #define SIN     'I'     /* signal that a sin function was found */
+    #define EXP     'E'     /* signal that a exp function was found */
+    #define POW     'O'     /* signal that a pow function was found */
+    #define MAXVAL  100     /* maximum depth of val stack */
+    <del>#define BUFSIZE 100</del>
+    <ins>#define MAXLINE 1000    /* maximum input line size */</ins>
+    
+    int getop(char []);
+    void push(double);
+    double pop(void);
+    void print_val(void);
+    void duplicate(void);
+    void swap(void);
+    void clear(void);
+    void setvar(int, double);
+    double getval(int);
+    <del>int getch(void);</del>
+    <del>void ungetch(int);</del>
+    <ins>int my_getline(char s[], int lim);</ins>
+    int lookfor(char []);
+    
+    int sp = 0;         /* next free stack position */
+    int ans = 0;        /* most recently printed value */
+    double val[MAXVAL]; /* value stack */
+    double var[26];     /* variable values */
+    <del>char buf[BUFSIZE];  /* buffer for ungetch */</del>
+    <del>int bufp = 0;       /* next free position in buf */</del>
+    <ins>char line[MAXLINE]; /* current input line */</ins>
+    <ins>int lp = 0;         /* current position in line */</ins>
+    
+    /* reverse Polish calculator */
+    main()
+    {
+        int type, temp;
+        double op1, op2;
+        char s[MAXOP];
+    
+        <ins>while (my_getline(line, MAXLINE) > 0) {</ins>
+            <del>while ((type = getop(s)) != EOF) {</del>
+            <ins>while ((type = getop(s)) != '\n') {</ins>
+                switch (type) {
+                ...
+                <del>case '\n':</del>
+                    <del>if (sp == 1) {</del>
+                        <del>printf("\t%.8g\n", op1 = pop());</del>
+                        <del>ans = op1;</del>
+                    <del>}</del>    
+                default:
+                    printf("error: unknown command %s\n", s);
+                    break;
+                }
+            }
+            <ins>if (sp == 1) {</ins>
+                <ins>printf("\t%.8g\n", op1 = pop());</ins>
+                <ins>ans = op1;</ins>
+            <ins>}</ins>
+            <ins>lp = 0;</ins>
+        <ins>}</ins>
+        return 0;
+    }
+    ...</code></pre>
+
+      <p>
+        With the groundwork laid down, altering <code>getop</code> to use
+        <code>getline</code> becomes simple. We replace every call of
+        <code>getch</code> with <code>++lp</code> (and seeing as we usually
+        assign the return value to another variable, we can assign
+        <code>line[++lp]</code> instead), and every call of
+        <code>ungetch</code> with <code>--lp</code>. Also, there is no longer a
+        need for <var>c</var>, as its value can be represented as
+        <code>line[lp]</code>. Seeing as we increment <var>lp</var> at the
+        start of <code>getop</code>, we now initialize and reset <var>lp</var>
+        to -1 every time we read in a new line so that the first character of a
+        line does not get skipped. Finally, as we also use <code>getch</code>
+        and <code>ungetch</code> in <code>lookfor</code>, we replace its
+        function calls using the same idea since <var>line</var> and
+        <var>lp</var> are global.
+      </p>
+
+      <pre><code>    ...
+    int sp = 0;         /* next free stack position */
+    int ans = 0;        /* most recently printed value */
+    double val[MAXVAL]; /* value stack */
+    double var[26];     /* variable values */
+    char line[MAXLINE]; /* current input line */
+    <del>int lp = 0;         /* current position in line */</del>
+    <ins>int lp = -1;        /* current position in line */</ins>
+    
+    /* reverse Polish calculator */
+    main()
+    {
+        int type, temp;
+        double op1, op2;
+        char s[MAXOP];
+
+        while (my_getline(line, MAXLINE) > 0) {
+            ...
+            if (sp == 1) {
+                printf("\t%.8g\n", op1 = pop());
+                ans = op1;
+            }
+            <del>lp = 0;</del>
+            <ins>lp = -1;</ins>
+        }
+        return 0;
+    }
+    ...
+    /* getop:  get next operator or numeric operand */
+    int getop(char s[])
+    {
+        int i<del>, c</del>;
+
+        <del>while ((s[0] = c = getch()) == ' ' || c == '\t')</del>
+        <ins>while ((s[0] = line[++lp]) == ' ' || line[lp] == '\t')</ins>
+            ;
+        s[1] = '\0';
+        <del>if (!isdigit(c) && c != '.' && c != '+' && c != '-') {</del>
+            <del>if (islower(c)) {</del>
+                <del>switch (c) {</del>
+        <ins>if (!isdigit(line[lp]) && line[lp] != '.' && line[lp] != '+' &&</ins>
+            <ins>line[lp] != '-') {</ins>
+            <ins>if (islower(line[lp])) {</ins>
+                <ins>switch (line[lp]) {</ins>
+                    case 's':
+                        <del>return (lookfor("in")) ? SIN : c;</del>
+                        <ins>return (lookfor("in")) ? SIN : line[lp];</ins>
+                    case 'e':
+                        <del>return (lookfor("xp")) ? EXP : c;</del>
+                        <ins>return (lookfor("xp")) ? EXP : line[lp];</ins>
+                    case 'p':
+                        <del>return (lookfor("ow")) ? POW : c;</del>
+                        <ins>return (lookfor("ow")) ? POW : line[lp];</ins>
+                    default:
+                        <del>return c;   /* not a number */</del>
+                        <ins>return line[lp];    /* not a number */</ins>
+                }
+            <del>} else if (c == '&') {</del>
+                <del>s[1] = getch();</del>
+            <ins>} else if (line[lp] == '&') {</ins>
+                <ins>s[1] = line[++lp];</ins>
+                s[2] = '\0';
+                <ins>return '&';</ins>
+            <del>} else if (isupper(c))</del>
+            <ins>} else if (isupper(line[lp]))</ins>
+                return VAR;
+            <del>return c;</del>
+            <ins>return line[lp];</ins>
+        }
+        i = 0;
+        <del>if (isdigit(c) || c == '+' || c == '-') /* collect integer part */</del>
+            <del>while (isdigit(s[++i] = c = getch()))</del>
+                <del>;</del>
+        <del>if (c == '.')   /* collect fraction part */</del>
+            <del>while (isdigit(s[++i] = c = getch()))</del>
+                <del>;</del>
+        <ins>/* collect integer part */</ins>
+        <ins>if (isdigit(line[lp]) || line[lp] == '+' || line[lp] == '-')</ins>
+            <ins>while (isdigit(s[++i] = line[++lp]))</ins>
+                <ins>;</ins>
+        <ins>if (line[lp] == '.') /* collect fraction part */</ins>
+            <ins>while (isdigit(s[++i] = line[++lp]))</ins>
+                <ins>;</ins>
+        s[i] = '\0';
+        <del>if (c != EOF)</del>
+            <del>ungetch(c);</del>
+        <ins>if (line[lp] != EOF)</ins>
+            <ins>--lp;</ins>
+        if ((s[0] == '+' || s[0] == '-') && i == 1)
+            return s[0];    /* return operator if no digits afterwards */
+        return NUMBER;
+    }
+    ...
+    /* lookfor:  return 1 if specified string is found */
+    int lookfor(char s[])
+    {
+        int i<del>, j</del>;
+        <del>int temp[MAXOP];</del>
+
+        <del>for (i = 0; s[i] != '\0' && (temp[i] = getch()) == s[i]; ++i)</del>
+        <ins>for (i = 0; s[i] != '\0' && line[++lp] == s[i]; ++i)</ins>
+            ;
+        if (s[i] == '\0')   /* string was found */
+            return 1;
+        else {  /* unget read characters and return 0 */
+            <del>for (j = 0; j &lt;= i; ++j)</del>
+                <del>ungetch(temp[j]);</del>
+            <ins>lp -= i + 1;</ins>
+            return 0;
+        }
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_09.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

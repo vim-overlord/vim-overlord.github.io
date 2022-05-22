@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 4-6</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_05.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_4/exercise_06.c"
+          >Exercise 4-6</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Add commands for handling variables. (It's easy to provide twenty-six
+          variables with single-letter names.) Add a variable for the most
+          recently printed value.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        Before we implement anything, let us first think of how we can add
+        support for variables. We can use uppercase letters for variable names
+        (as we already use some lowercase letters for commands), and perhaps we
+        could use <code>'='</code> as the assignment operator. Then, whenever a
+        variable name is entered, we can have its numerical value
+        <code>push</code>ed to the stack. However, we have run into a problem:
+        if a variable name is converted to its numerical value as soon as it is
+        entered, how do we assign values to it in the first place? For simple
+        definitions like <kbd>A 1 =</kbd> (A = 1 in infix notation), there may
+        be workarounds, but our code would become really messy when we start to
+        account for situations like <kbd>A B C + =</kbd> (A = B + C in infix
+        notation.) Therefore, the easiest way to deal with this is to introduce
+        the dereferencing operator <code>'&'</code>: <kbd>A</kbd> now refers to
+        the name of a variable, and <kbd>&A</kbd> represents the numerical
+        value of <code>'A'</code>.
+      </p>
+      <p>
+        We start by defining the floating-point array <var>var</var>, which
+        holds the values of all the variables. We will set it up in a way so
+        that <code>var[1]</code> holds the value of the variable
+        <code>'A'</code>, <code>var[2]</code> holds the value of
+        <code>'B'</code>, and so on. We need to create two functions to handle
+        with variables: <code>setvar</code>, which takes in a variable name and
+        assigns a value to it, and <code>getval</code>, which returns the value
+        of a variable. For <code>setvar</code>, all we need to do is assign the
+        value argument to <code>var[c - 'A']</code>, where <var>c</var> is the
+        name of the variable. For <code>getval</code>, we simply return
+        <code>var[c - 'A']</code>. For both functions, we make sure that
+        <code>c</code> is a valid variable name (i.e. an uppercase letter.)
+      </p>
+
+      <pre><code>    ...
+    /* setvar:  set the value of a variable */
+    void setvar(int c, double f)
+    {
+        if (isupper(c))
+            var[c - 'A'] = f;
+        else
+            printf("error: invalid variable name\n");
+    }
+    
+    /* getval:  return value of a variable */
+    double getval(int c)
+    {
+        if (isupper(c))
+            return var[c - 'A'];
+        else {
+            printf("error: invalid variable name\n");
+            return 0;
+        }
+    }
+    ...</code></pre>
+
+      <p>
+        Now we need to add commands to utilize these functions. First off,
+        whenever <code>getop</code> reads in an uppercase letter, we return a
+        <code>VAR</code> token. To add support for the <code>'&'</code>
+        operator, whenever it is entered, we also read in the next character
+        (which should be the name of a variable) into <code>s[1]</code>, so
+        that it can be used later.
+      </p>
+
+      <pre><code>    ...
+    #define MAXOP   100 /* max size of operand or operator */
+    #define NUMBER  '0' /* signal that a number was found */
+    <ins>#define VAR     'A' /* signal that a variable was found */</ins>
+    #define SIN     'I' /* signal that a sin function was found */
+    #define EXP     'E' /* signal that a exp function was found */
+    #define POW     'O' /* signal that a pow function was found */
+    #define MAXVAL  100 /* maximum depth of val stack */
+    #define BUFSIZE 100
+    ...
+    /* getop:  get next operator or numeric operand */
+    int getop(char s[])
+    {
+        int i, c;
+
+        while ((s[0] = c = getch()) == ' ' || c == '\t')
+            ;
+        s[1] = '\0';
+        if (!isdigit(c) && c != '.' && c != '+' && c != '-') {
+            if (islower(c)) {
+                switch (c) {
+                    case 's':
+                        return (lookfor("in")) ? SIN : c;
+                    case 'e':
+                        return (lookfor("xp")) ? EXP : c;
+                    case 'p':
+                        return (lookfor("ow")) ? POW : c;
+                    default:
+                        return c;   /* not a number */
+                }
+            } <ins>else if (c == '&') {</ins>
+                <ins>s[1] = getch();</ins>
+                <ins>s[2] = '\0';</ins>
+            <ins>} else if (isupper(c))</ins>
+                <ins>return VAR;</ins>
+            return c;
+        }
+        ...</code></pre>
+
+      <p>
+        Inside <code>main</code>, we can now add cases for our new tokens.
+        Firstly, when the loop encounters a <code>VAR</code> token, we assign
+        <code>s[0]</code> (which holds the name of the variable) to
+        <var>temp</var>. <var>temp</var> will be used when the <code>'='</code>
+        operator is entered, where the top value of stack is assigned to
+        variable <var>temp</var>. Additionally, we can also give the
+        declaration statement itself the value by <code>push</code>ing it so
+        that statements like <code>A 1 = 1 +</code> ((A = 1) + 1 in infix
+        notation) are also valid. Finally, when we come across
+        <code>'&'</code>, we <code>push</code> the value of the variable
+        <code>s[1]</code>.
+      </p>
+
+      <pre><code>    ...
+    /* reverse Polish calculator */
+    main()
+    {
+        int type, temp;
+        double op1, op2;
+        char s[MAXOP];
+    
+        while ((type = getop(s)) != EOF) {
+            switch (type) {
+            case NUMBER:
+                push(atof(s));
+                break;
+            case '+':
+                push(pop() + pop());
+                break;
+            case '*':
+                push(pop() * pop());
+                break;
+            case '-':
+                op2 = pop();
+                push(pop() - op2);
+                break;
+            case '/':
+                op2 = pop();
+                if (op2 != 0.0)
+                    push(pop() / op2);
+                else
+                    printf("error: zero divisor\n");
+                break;
+            case '%':
+                op2 = pop();
+                if (op2 != 0.0) {
+                    for (op1 = pop(); op1 &gt;= op2; op1 -= op2)
+                        ;
+                    push(op1);
+                } else
+                    printf("error: zero divisor\n");
+                break;
+            case SIN:
+                push(sin(pop()));
+                break;
+            case EXP:
+                push(exp(pop()));
+                break;
+            case POW:
+                op2 = pop();
+                push(pow(pop(), op2));
+                break;
+            <ins>case VAR:</ins>
+                <ins>temp = s[0];</ins>
+                <ins>break;</ins>
+            <ins>case '&':</ins>
+                <ins>push(getval(s[1]));</ins>
+                <ins>break;</ins>
+            <ins>case '=':</ins>
+                <ins>setvar(temp, pop());</ins>
+                <ins>push(getval(temp));</ins>
+                <ins>break;</ins>
+            ...</code></pre>
+
+      <p>
+        Finally, we need to create a variable for the most recently printed
+        value. Seeing as this variable is special, we can store it inside its
+        own variable <var>ans</var> and have it be <code>push</code>ed when
+        <code>'a'</code> is entered. Whenever a value is printed (which can
+        occur when <code>print_val</code> is called or a newline is entered),
+        we need to assign said value to <var>ans</var>.
+      </p>
+
+      <pre><code>    ...
+    int sp = 0;         /* next free stack position */
+    <ins>int ans = 0;        /* most recently printed value */</ins>
+    double val[MAXVAL]; /* value stack */
+    double var[26];     /* variable values */
+    char buf[BUFSIZE];  /* buffer for ungetch */
+    int bufp = 0;       /* next free position in buf */
+    
+    /* reverse Polish calculator */
+    main()
+    {
+        int type, temp;
+        double op1, op2;
+        char s[MAXOP];
+    
+        while ((type = getop(s)) != EOF) {
+            switch (type) {
+            case NUMBER:
+                push(atof(s));
+                break;
+            case '+':
+                push(pop() + pop());
+                break;
+            case '*':
+                push(pop() * pop());
+                break;
+            case '-':
+                op2 = pop();
+                push(pop() - op2);
+                break;
+            case '/':
+                op2 = pop();
+                if (op2 != 0.0)
+                    push(pop() / op2);
+                else
+                    printf("error: zero divisor\n");
+                break;
+            case '%':
+                op2 = pop();
+                if (op2 != 0.0) {
+                    for (op1 = pop(); op1 &gt;= op2; op1 -= op2)
+                        ;
+                    push(op1);
+                } else
+                    printf("error: zero divisor\n");
+                break;
+            case SIN:
+                push(sin(pop()));
+                break;
+            case EXP:
+                push(exp(pop()));
+                break;
+            case POW:
+                op2 = pop();
+                push(pow(pop(), op2));
+                break;
+            case VAR:
+                temp = s[0];
+                break;
+            case '&':
+                push(getval(s[1]));
+                break;
+            case '=':
+                setvar(temp, pop());
+                push(getval(temp));
+                break;
+            <ins>case 'a':</ins>
+                <ins>push(ans);</ins>
+                <ins>break;</ins>
+            case 'p':
+                print_val();
+                break;
+            case 'd':
+                duplicate();
+                break;
+            case 's':
+                swap();
+                break;
+            case 'c':
+                clear();
+                break;
+            case '\n':
+                if (sp == 1) {
+                    printf("\t%.8g\n", op1 = pop());
+                    <ins>ans = op1;</ins>
+                }
+                break;
+            default:
+                printf("error: unknown command %s\n", s);
+                break;    
+            }
+        }
+        return 0;
+    }
+    ...
+    /* print_val:  print top element of value stack */
+    void print_val(void)
+    {
+        if (sp &gt; 0) {
+            printf("\t%.8g\n", val[sp - 1]);
+            <ins>ans = val[sp - 1];</ins>
+        } else
+            printf("error: stack empty\n");
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_05.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

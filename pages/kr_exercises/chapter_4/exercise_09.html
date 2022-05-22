@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 4-9</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_08.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_4/exercise_09.c"
+          >Exercise 4-9</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Our <code>getch</code> and <code>ungetch</code> do not handle a
+          pushed-back <code>EOF</code> correctly. Decide what their properties
+          ought to be if an <code>EOF</code> is pushed back, then implement
+          your design.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        The reason why the two functions may not be able to handle a
+        pushed-back <code>EOF</code> is because <code>EOF</code> is not a
+        character, but <var>buf</var> is declared as a character array (note
+        that the functions may still work on C implementations that use
+        <code>signed char</code>s.) Thus, we change <var>buf</var> to be an
+        integer array to retain the ability to push back an <code>EOF</code> on
+        all systems.
+      </p>
+
+      <pre><code>    ...
+    int sp = 0;         /* next free stack position */
+    double val[MAXVAL]; /* value stack */
+    double vars[26];    /* variable values */
+    <del>char buf[BUFSIZE];  /* buffer for ungetch */</del>
+    <ins>int buf[BUFSIZE];   /* buffer for ungetch */</ins>
+    int bufp = 0;       /* next free position in buf */
+    ...</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_08.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

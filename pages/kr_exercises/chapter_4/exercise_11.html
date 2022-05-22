@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 4-11</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_10.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_4/exercise_11.c"
+          >Exercise 4-11</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Modify <code>getop</code> so that it doesn't need to use ungetch.
+          Hint: use an internal static variable.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        Similar to before, we will use the code from
+        <a href="./exercise_03.html">exercise 4-3</a> as a starting point as
+        implementing this in our more recent programs would break
+        functionality.
+      </p>
+      <p>
+        In order to rewrite <code>getop</code> without having the ability to
+        push back a character, we change <var>c</var> to be
+        <code>static</code>, which means its value carries over the next time
+        <code>getop</code> is called. At the start of <code>getop</code>,
+        instead of always reading in at least one new character, we only read
+        in characters as long as <var>c</var> is a whitespace character.
+        <var>c</var> will be initialized to a whitespace character so that on
+        the first run, the next character is read. Doing this instead means we
+        no longer need to push back <var>c</var> as it will carry over by
+        default. In cases where we would normally not execute
+        <code>ungetch</code>, we simply set <var>c</var> to whitespace so that
+        the next character will be read into <var>c</var> the next time
+        <code>getop</code> is called. Note that as <var>c</var> is actually
+        equal the character that will carry over, wherever we returned
+        <var>c</var> before, we now need to return <code>s[0]</code> instead
+        (which prior to this change was equivalent to <var>c</var>.)
+      </p>
+
+      <pre><code>    /* getop:  get next operator or numeric operand */
+    int getop(char s[])
+    {
+        <del>int i, c;</del>
+        <ins>int i;</ins>
+        <ins>static int c = ' ';</ins>
+    
+        <del>while ((s[0] = c = getch()) == ' ' || c == '\t')</del>
+            <del>;</del>
+        <ins>while (c == ' ' || c == '\t')</ins>
+            <ins>s[0] = c = getchar();</ins>
+        s[1] = '\0';
+        if (!isdigit(c) && c != '.' && c != '+' && c != '-') {
+            <ins>c = ' ';        /* read next character next time getop is run */</ins>
+            <del>return c;       /* not a number */</del>
+            <ins>return s[0];    /* not a number */</ins>
+        }
+        i = 0;
+        if (isdigit(c) || c == '+' || c == '-') /* collect integer part */
+            while (isdigit(s[++i] = c = getch<ins>ar</ins>()))
+                ;
+        if (c == '.')   /* collect fraction part */
+            while (isdigit(s[++i] = c = getch<ins>ar</ins>()))
+                ;
+        <del>if (c != EOF)</del>
+            <del>ungetch(c);</del>
+        s[i] = '\0';
+        if ((s[0] == '+' || s[0] == '-') && i == 1)
+            return s[0];    /* return operator if no digits afterwards */
+        return NUMBER;
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_10.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

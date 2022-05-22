@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 4-7</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_06.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_4/exercise_07.c"
+          >Exercise 4-7</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a routine <code>ungets(s)</code> that will push back an entire
+          string onto the input. Should <code>ungets</code> know about
+          <var>buf</var> and <var>bufp</var>, or should it just use
+          <code>ungetch</code>?
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        Instead of accessing <var>buf</var> and <var>bufp</var>, it would be
+        easier to use <code>ungetch</code> since a lot of the code in it is
+        common with our new function. Keeping in mind that stacks work on the
+        last in, first out principle, we want to push back the last character
+        first, then the second-to-last character, and so on until the entire
+        string has been pushed into <var>buf</var>. We achieve this by
+        incrementing <var>i</var> until it equals the index of the last
+        character of <var>s</var>, at which point we push back each character
+        in a <code>for</code>-loop that decrements <var>i</var> until it
+        reaches zero.
+      </p>
+
+      <pre><code>    /* ungets:  push character string back on input */
+    void ungets(char s[])
+    {
+        int i;
+    
+        for (i = 0; s[i] != '\0'; ++i)
+            ;
+        --i;    /* exclude \0 */
+        for (; i &gt;= 0; --i)
+            ungetch(s[i]);
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_06.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

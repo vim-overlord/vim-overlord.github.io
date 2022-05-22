@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 4-8</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_07.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_4/exercise_08.c"
+          >Exercise 4-8</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Suppose that there will never be more than one character of pushback.
+          Modify <code>getch</code> and <code>ungetch</code> accordingly.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        For this exercise, we cannot build upon the previous ones as this would
+        break functionality that the program depends on, so we will build on
+        from our code from <a href="./exercise_03.html">exercise 4-3</a>, which
+        is the calculator at its most basic state while still remaining usable
+        with support for negative numbers.
+      </p>
+      <p>
+        The first thing we do is replace the character array <var>buf</var>
+        with a single character. We can also get rid of <var>bufp</var> and
+        instead create the boolean variable <var>state</var> that can be set
+        to <code>FULL</code> or <code>EMPTY</code> to represent whether the
+        buffer is free. Inside <code>ungetch</code>, we assign the argument
+        to <var>buf</var> only if <var>state</var> is not <code>FULL</code>,
+        and then update <var>state</var> to <code>FULL</code>. For
+        <code>getch</code>, we normally run <code>getchar</code> except for
+        when <var>state</var> is <code>FULL</code>, in which case we return
+        <var>buf</var> and change <var>state</var> to <code>EMPTY</code>.
+      </p>
+
+      <pre><code>    #define MAXOP   100 /* max size of operand or operator */
+    #define NUMBER  '0' /* signal that a number was found */
+    #define MAXVAL  100 /* maximum depth of val stack */
+    <del>#define BUFSIZE 100</del>
+
+    <ins>enum boolean { EMPTY, FULL };</ins>
+    
+    int getop(char []);
+    void push(double);
+    double pop(void);
+    int getch(void);
+    void ungetch(int);
+    
+    int sp = 0;         /* next free stack position */
+    double val[MAXVAL]; /* value stack */
+    <del>char buf[BUFSIZE];  /* buffer for ungetch */</del>
+    <del>int bufp = 0;       /* next free position in buf */</del>
+    <ins>char buf;           /* buffer for ungetch */</ins>
+    <ins>int state = EMPTY;  /* whether buffer is full or empty */</ins>
+    ...
+    int getch(void) /* get a (possibly pushed back) character */
+    {
+        <del>return (bufp > 0) ? buf[--bufp] : getchar();</del>
+        <ins>if (state == FULL) {</ins>
+            <ins>state = EMPTY;</ins>
+            <ins>return buf;</ins>
+        <ins>}</ins>
+        <ins>return getchar();</ins>
+    }
+    
+    void ungetch(int c) /* push character back on input */
+    {
+        <del>if (bufp >= BUFSIZE)</del>
+            <del>printf("ungetch: too many characters\n");</del>
+        <del>else</del>
+            <del>buf[bufp++] = c;</del>
+        <ins>if (state == FULL)</ins>
+            <ins>printf("ungetch: buffer is full\n");</ins>
+        <ins>else {</ins>
+            <ins>buf = c;</ins>
+            <ins>state = FULL;</ins>
+        <ins>}</ins>
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_07.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

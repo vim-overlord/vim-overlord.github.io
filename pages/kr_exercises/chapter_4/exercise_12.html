@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 4-12</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_11.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_4/exercise_12.c"
+          >Exercise 4-12</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Adapt the ideas of <code>printd</code> to write a recursive version
+          of <code>itoa</code>; that is, convert an integer into a string by
+          calling a recursive routine.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        We start with <code>printd</code> as a template, as it has a lot in
+        common with the function we want to implement.
+      </p>
+
+      <pre><code>    /* printd:  print n in decimal */
+    void printd(int n)
+    {
+        if (n &lt; 0) {
+            putchar('-');
+            n = -n;
+        }
+        if (n / 10)
+            printd(n / 10);
+        putchar(n % 10 + '0');
+    }</code></pre>
+
+      <p>
+        We first create the <code>static</code> integer <var>i</var> to act as
+        the current index of <var>s</var>. <var>i</var> is <code>static</code>
+        because we want its value to be saved when we call <code>itoa</code>
+        recursively. Similar to <code>printd</code>, we recursively call
+        <code>itoa(n / 10, s)</code> until <code>n / 10</code> equals zero.
+        When that happens, if <var>n</var> is negative (remember, the modulo
+        operator retains signs), we set the first character of the string to be
+        a minus sign. Then, we set <code>s[i]</code> to equal
+        <code>|n| % 10 + '0'</code> and increment <var>i</var> after doing so.
+        Finally, after <var>i</var> has been incremented, we set
+        <code>s[i]</code> to <code>\0</code>. This element will be overwritten
+        on every call of <code>itoa</code> except the last one, ensuring that
+        the string is null-terminated.
+      </p>
+
+      <pre><code>    <del>/* printd:  print n in decimal */</del>
+    <del>void printd(int n)</del>
+    <ins>/* itoa:  convert n to characters in s */</ins>
+    <ins>void itoa(int n, char s[])</ins>
+    {
+        <ins>static int i = 0;</ins>
+    
+        <del>if (n &lt; 0) {</del>
+            <del>putchar('-');</del>
+            <del>n = -n;</del>
+        <del>}</del>
+        if (n / 10)
+            <del>printd(n / 10);</del>
+            <ins>itoa(n / 10, s);</ins>
+        <ins>else if (n &lt; 0)</ins>
+            <ins>s[i++] = '-';</ins>
+        <del>putchar(n % 10 + '0');</del>
+        <ins>s[i++] = ((n >= 0) ? n : -n) % 10 + '0';</ins>
+        <ins>s[i] = '\0';</ins>
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_11.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

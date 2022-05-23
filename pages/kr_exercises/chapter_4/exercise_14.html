@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 4-14</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_13.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_4/exercise_14.c"
+          >Exercise 4-14</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Define a macro <code>swap(t,x,y)</code> that interchanges two
+          arguments of type <var>t</var>. (Block structure will help.)
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        We already know that to swap two integers <var>x</var> and
+        <var>y</var>, we use the following code:
+      </p>
+
+      <pre><code>    int z = x;
+    x = y;
+    y = z;</code></pre>
+
+      <p>
+        Replacing <code>int</code> with <code>t</code> and using the macro
+        block structure, we can write <code>swap</code> as follows.
+      </p>
+
+      <pre><code>    /* swap:  swap two variables x and y of type t */
+    #define swap(t, x, y) \
+        t z = x; \
+        x = y; \
+        y = z;</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_13.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>

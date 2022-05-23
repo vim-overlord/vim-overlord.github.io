@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 4-13</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="./exercise_12.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+      <hr />
+      <h1>
+        <a
+          href="https://raw.githubusercontent.com/vim-overlord/hello_world/master/chapter_4/exercise_13.c"
+          >Exercise 4-13</a
+        >
+      </h1>
+      <blockquote>
+        <i>
+          Write a recursive version of the function <code>reverse(s)</code>,
+          which reverses the string <code>s</code> in place.
+        </i>
+      </blockquote>
+    </header>
+    <main>
+      <p>
+        This is the <code>reverse</code> function from section 3.5, which is
+        written using an iterative approach.
+      </p>
+
+      <pre><code>    /* reverse:  reverse string s in place */
+    void reverse(char s[])
+    {
+        int c, i, j;
+    
+        for (i = 0, j = strlen(s)-1; i &lt; j; i++, j--) {
+            c = s[i];
+            s[i] = s[j];
+            s[j] = c;
+        }
+    }</code></pre>
+
+      <p>
+        The first thing we notice is that <var>i</var> is an index, so we make
+        it <code>static</code> so that its value is preserved between calls.
+        <var>j</var> is an index too; however, its definition requires the use
+        of the function <code>strlen</code>, and the return value of a function
+        cannot be used in the definition of a static variable. Luckily, we can
+        still make <var>j</var> a non-<code>static</code> variable by assigning
+        the value <code>strlen(s) - 1 - i</code>, which is functionally the
+        same.
+      </p>
+      <p>
+        After the variables have been defined, as long as <var>i</var> is less
+        than <var>j</var>, we swap the variables, increment <var>i</var>, and
+        call <code>reverse</code> again.
+      </p>
+
+      <pre><code>    /* reverse:  reverse string s in place */
+    void reverse(char s[])
+    {
+        int c, <del>i, </del>j;
+        <ins>static int i = 0;</ins>
+    
+        <del>for (i = 0, j = strlen(s)-1; i &lt; j; i++, j--) {</del>
+        <ins>j = strlen(s) - 1 - i;</ins>
+        <ins>if (i &lt; j) {</ins>
+            c = s[i];
+            s[i] = s[j];
+            s[j] = c;
+            <ins>++i;</ins>
+            <ins>reverse(s);</ins>
+        }
+    }</code></pre>
+    </main>
+    <footer>
+      <hr />
+      <nav>
+        <a href="./exercise_12.html">prev</a>
+        <a href="../about.html">top</a>
+      </nav>
+    </footer>
+  </body>
+</html>
